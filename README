@@ -1,0 +1,34 @@
+
+mod_asn looks up the AS and network prefix of IP address.
+
+-------------------------------
+
+
+mod_asn is an Apache module doing lookups of the autonomous system (AS) and the
+network prefix that an IP address is contained in.
+
+It is written with scalability in mind. To do high-speed lookups, it uses the
+PostgreSQL ip4r datatype that is indexable with a Patricia Trie algorithm to
+store network prefixes.
+
+It comes with script to create such a database and update it with snapshots from
+router's "view of the world".
+
+The module sets the looked up data as env table variables, for use by other
+Apache module to do things with it, and it can send it as response headers to
+the client.
+
+
+Example HTTP response headers:
+
+HTTP/1.1 200 OK
+Date: Thu, 12 Feb 2009 23:24:33 GMT
+Server: Apache/2.2.11 (Linux/SUSE)
+X-Prefix: 83.133.0.0/16
+X-AS: 13237
+Last-Modified: Wed, 11 Feb 2009 19:52:09 GMT
+ETag: "c0ee5656-a55d-462a9f0652c40"
+Accept-Ranges: bytes
+Content-Length: 42333
+Content-Type: application/x-rpm
+
