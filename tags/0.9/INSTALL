@@ -1,0 +1,80 @@
+
+Install the PostgreSQL ip4r datatype
+-----------------------------------
+
+* install the postgresql-ip4r package
+  project page: http://ip4r.projects.postgresql.org/
+  openSUSE/SLE rpm package: 
+     http://download.opensuse.org/repositories/server:/database:/postgresql/
+
+
+* install the datatype, done by executing sql statements from the shipped file:
+    su - postgres
+    psql -f /usr/share/postgresql-ip4r/ip4r.sql template1
+
+  ("template1" means that all databases that are created later will have the datatype.
+  To install it onto an existing database, use your database name instead.)
+
+  (It is normal to see a a good screenful of out printed out by psql.)
+
+
+Create the database table
+-----------------------------------
+
+* it is assumed that a database exist already.
+
+* execute the sql statements from asn.sql (shipping with mod_asn):
+    psql -U <dbuser> -f asn.sql <dbname>
+
+  In this example, a table named pfx2asn would be created in the 
+  <dbname>. database.
+
+  (It is normal to see a "NOTICE" printed out by psql.)
+
+
+
+Load the database with routing data
+-----------------------------------
+
+* edit asn_import.py for database connection data 
+  (hostname, username, password, ...)
+  FIXME: it is ugly to have to edit a script.
+
+* download the data and import it into the database:
+
+    ./asn_get_routeviews.py | ./asn_import.py
+
+* this will take a few minutes. The routing data is 900 MB uncompressed
+  (beginning of 2009). 
+
+* the same command can also be used to update the database later, with fresh
+  routeviews data. Just run it again. It can be done in production while the
+  database is in active use.
+
+* you should set up this script to run once per week by cron, so the database
+  keeps updated regularly.
+
+
+Build the Apache module
+-----------------------------------
+
+* compile, install, and enable it:
+    apxs2 -ci mod_asn.c
+
+* or install openSUSE/SLE RPM package from here:
+  http://download.opensuse.org/repositories/Apache:/Modules/ 
+
+* and enable it
+    a2enmod asn
+
+Configure Apache
+-----------------------------------
+
+* simply set "ASLookup On" in the directory context where you want it.
+* the shipped config (mod_asn.conf) shows an example.
+
+* set "ASSetHeaders Off" if you don't want the data to be added to the HTTP
+  response headers.
+
+That's it!
+
