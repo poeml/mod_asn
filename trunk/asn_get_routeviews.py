@@ -95,7 +95,12 @@ def gen_asn(lines):
         if s[1].startswith('0.0.0.0/0'):
             # see comment above
             yield s[1], '0', '0'
-        yield s[1], s[-3], s[-2]
+        # drop the 'i' at the end
+        s.pop()
+        # drop doublettes of the as number at the end
+        while s[-1] == s[-2]:
+            s.pop()
+        yield s[1], s[-2], s[-1]
 
 # not used here, but useful another time maybe...
 def gen_uniq(lines): 
