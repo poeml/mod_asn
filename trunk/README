@@ -1,8 +1,6 @@
 
 mod_asn looks up the AS and network prefix of IP address.
-
--------------------------------
-
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 mod_asn is an Apache module doing lookups of the autonomous system (AS) and the
 network prefix that an IP address is contained in.
@@ -32,3 +30,7 @@ Accept-Ranges: bytes
 Content-Length: 42333
 Content-Type: application/x-rpm
 
+
+A little feature which is planned for the future is to enable lookup by
+X-Forwarded-For header, instead of the request IP address, so that a frontend
+server of proxy can pass the IP address to the module running as backend.
