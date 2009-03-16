@@ -71,7 +71,10 @@ Configure Apache - mod_dbd
 -----------------------------------
 
 * mod_dbd is the database adapter that provides a connection pool.
-  Put the following configuration into server-wide context.
+  Enable it, e.g.
+    a2enmod asn
+
+* Put the following configuration into server-wide context.
 
   ------------------------------------------------------------------------
   # whis configures the connection pool.
@@ -110,6 +113,19 @@ Configure Apache - mod_asn
 * you may use the ASLookupQuery directive (server-wide context) to define a
   custom SQL query. The compiled in default is:
   SELECT pfx, asn FROM pfx2asn WHERE pfx >>= ip4r(%s) ORDER BY ip4r_size(pfx) LIMIT 1
+
+* the client IP address is the one that the requests originates from. But if
+  mod_asn is running behind a frontend server, the frontend can pass the IP via
+  a header and mod_asn can look at the header instead, and you can configure it
+  to look at that header like this: 
+    ASIPHeader X-Forwarded-For
+
+* alternatively, if you want to use mod_rewrite you can also make mod_asn look
+  at a variable in Apache's subprocess environment:
+    ASIPEnvvar CLIENT_IP
+
+* "ASLookupDebug On" can be set to switch on debug logging. It can be set per
+  directory.
 
 
 That's it!
