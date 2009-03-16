@@ -28,6 +28,7 @@ Requires:       apache2 %{apache_mmn}
 Autoreqprov:    on
 Summary:        mod_asn looks up the AS and network prefix of IP address
 #
+# http://svn.poeml.de/svn/mod_asn/trunk
 Source10:       mod_asn.c
 Source11:       mod_asn.conf
 Source20:       asn_import.py
@@ -57,6 +58,8 @@ for perusal by other Apache modules. In addition, it can send it as response
 headers to the client.
 
 It is published under the Apache License, Version 2.0.
+
+Source code can be obtained here: http://svn.poeml.de/svn/mod_asn/
 
 Links:
 [1] http://en.wikipedia.org/wiki/Autonomous_system_(Internet)

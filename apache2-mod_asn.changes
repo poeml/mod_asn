@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Mar 16 21:29:44 CET 2009 - poeml@suse.de
+
+- update to svn r11; no functional change, mostly documentation
+  updates.
+
+-------------------------------------------------------------------
 Fri Feb 13 01:17:13 CET 2009 - poeml@suse.de
 
 - work on INSTALL and README
