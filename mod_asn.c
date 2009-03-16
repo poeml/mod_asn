@@ -17,9 +17,10 @@
  *
  *
  *
- *                      mod_asn
+ *     mod_asn
  *
- * look up the autonomous system that a client's IP address is belonging to
+ * look up the autonomous system, and network prefix, that a client's IP
+ * address is belonging to
  *
  */
 
