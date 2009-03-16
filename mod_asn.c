@@ -43,7 +43,7 @@
 #define UNSET (-1)
 #endif
 
-#define MOD_ASN_VER "0.9"
+#define MOD_ASN_VER "1.0"
 #define VERSION_COMPONENT "mod_asn/"MOD_ASN_VER
 
 /* from ssl/ssl_engine_config.c */
@@ -71,6 +71,8 @@ typedef struct
 {
     const char *query;
     const char *query_prep;
+    const char *ip_header;
+    const char *ip_envvar;
 } asn_server_conf;
 
 
@@ -159,6 +161,8 @@ static void *create_asn_server_config(apr_pool_t *p, server_rec *s)
 
     new->query = DEFAULT_QUERY;
     new->query_prep = NULL;
+    new->ip_header = NULL;
+    new->ip_envvar = NULL;
     return (void *) new;
 }
 
@@ -170,6 +174,8 @@ static void *merge_asn_server_config(apr_pool_t *p, void *basev, void *addv)
 
     mrg->query = (add->query != (char *) DEFAULT_QUERY) ? add->query : base->query;
     cfgMergeString(query_prep);
+    cfgMergeString(ip_header);
+    cfgMergeString(ip_envvar);
     return (void *) mrg;
 }
 
@@ -205,10 +211,33 @@ static const char *asn_cmd_dbdquery(cmd_parms *cmd,
     return NULL;
 }
 
+static const char *asn_cmd_ip_header(cmd_parms *cmd, 
+                                void *config, const char *arg1)
+{
+    server_rec *s = cmd->server;
+    asn_server_conf *cfg = 
+        ap_get_module_config(s->module_config, &asn_module);
+
+    cfg->ip_header = arg1;
+    return NULL;
+}
+
+static const char *asn_cmd_ip_envvar(cmd_parms *cmd, 
+                                void *config, const char *arg1)
+{
+    server_rec *s = cmd->server;
+    asn_server_conf *cfg = 
+        ap_get_module_config(s->module_config, &asn_module);
+
+    cfg->ip_envvar = arg1;
+    return NULL;
+}
+
 static int asn_header_parser(request_rec *r)
 {
     asn_dir_conf *cfg = NULL;
     asn_server_conf *scfg = NULL;
+    const char *clientip = NULL;
     const char *pfx = NULL;
     const char *as = NULL;
     apr_status_t rv;
@@ -249,13 +278,29 @@ static int asn_header_parser(request_rec *r)
         ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, "[mod_asn] Could not get prepared statement!");
         return DECLINED;
     }
+
+    if (scfg->ip_header) {
+        clientip = apr_table_get(r->headers_in, scfg->ip_header);
+        debugLog(r, cfg, "client ip from %s header: %s", scfg->ip_header, clientip);
+    } else if (scfg->ip_envvar) {
+        clientip = apr_table_get(r->subprocess_env, scfg->ip_header);
+        debugLog(r, cfg, "client ip from %s envvar: %s", scfg->ip_header, clientip);
+    } else {
+        clientip = apr_pstrdup(r->pool, r->connection->remote_ip);
+    }
+
+    if (!clientip) {
+        debugLog(r, cfg, "empty client ip... not doing a lookup");
+        return DECLINED;
+    }
+
     
     /* 0: sequential. must loop over all rows.
      * 1: random. accessing invalid row (-1) will clear the cursor. */
     if (apr_dbd_pvselect(dbd->driver, r->pool, dbd->handle, &res, statement, 0,
-                         r->connection->remote_ip, NULL) != 0) {
+                         clientip, NULL) != 0) {
         ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, 
-                "[mod_asn] Error looking up %s in database", r->connection->remote_ip);
+                "[mod_asn] Error looking up %s in database", clientip);
         return DECLINED;
     }
 
@@ -265,7 +310,7 @@ static int asn_header_parser(request_rec *r)
     if (rv != 0) {
         ap_log_rerror(APLOG_MARK, APLOG_ERR, rv, r,
                       "[mod_asn] Error retrieving row from database for %s", 
-                      r->connection->remote_ip);
+                      clientip);
         return DECLINED;
     }
 
@@ -283,7 +328,7 @@ static int asn_header_parser(request_rec *r)
     if (rv != -1) {
         ap_log_rerror(APLOG_MARK, APLOG_ERR, rv, r,
                       "[mod_asn] found one row too much looking up %s", 
-                      r->connection->remote_ip);
+                      clientip);
         return DECLINED;
     }
 
@@ -319,6 +364,15 @@ static const command_rec asn_cmds[] =
     AP_INIT_TAKE1("ASLookupQuery", asn_cmd_dbdquery, NULL,
                   RSRC_CONF,
                   "the SQL query string to use"),
+    AP_INIT_TAKE1("ASIPHeader", asn_cmd_ip_header, NULL,
+                  RSRC_CONF,
+                  "Take the IP address from this HTTP request header, instead "
+                  "of the IP address that the request originates from"),
+    AP_INIT_TAKE1("ASIPEnvvar", asn_cmd_ip_envvar, NULL,
+                  RSRC_CONF,
+                  "Use this string to look up the IP address in the subprocess "
+                  "environment, instead of using the IP address that the request "
+                  " originates from"),
 
     { NULL }
 };
