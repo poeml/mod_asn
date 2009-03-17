@@ -77,7 +77,7 @@ Build the Apache module
 * and enable it
     a2enmod asn
 
-Configure Apache - mod_dbd
+Configure Apache / mod_dbd
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * mod_dbd is the database adapter that provides a connection pool.
@@ -111,7 +111,7 @@ Configure Apache - mod_dbd
   ------------------------------------------------------------------------
 
 
-Configure Apache - mod_asn
+Configure mod_asn
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * simply set "ASLookup On" in the directory context where you want it.
@@ -136,6 +136,14 @@ Configure Apache - mod_asn
 
 * "ASLookupDebug On" can be set to switch on debug logging. It can be set per
   directory.
+
+
+Logging
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* since the data being looked up is stored in the subprocess environment, it is
+  trivial to log it, by adding the following placeholder to the LogFormat:
+    ASN:%{ASN}e P:%{PFX}e
 
 
 That's it!

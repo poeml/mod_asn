@@ -13,8 +13,8 @@ It comes with script to create such a database and update it with snapshots from
 router's "view of the world".
 
 The module sets the looked up data as env table variables, for use by other
-Apache module to do things with it, and it can send it as response headers to
-the client.
+Apache module to do things with it, or for logging -- and it can add the data
+as response headers to the client.
 
 
 Example HTTP response headers:
