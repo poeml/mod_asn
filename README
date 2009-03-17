@@ -31,6 +31,21 @@ Content-Length: 42333
 Content-Type: application/x-rpm
 
 
-A little feature which is planned for the future is to enable lookup by
-X-Forwarded-For header, instead of the request IP address, so that a frontend
-server of proxy can pass the IP address to the module running as backend.
+
+
+Usage with MirrorBrain
+~~~~~~~~~~~~~~~~~~~~~~
+
+mod_mirrorbrain can use the data (set in the subprocess environment) for its
+mirror selection algorithm.
+
+In addition, the database can be queried with the MirrorBrain tool set:
+
+ # mb iplookup mirror.susestudio.com
+130.57.19.0/24 (AS3680)
+ # mb iplookup mirror.susestudio.com --all-prefixes
+130.57.19.0/24 (AS3680)
+130.57.0.0/16, 130.57.0.0/20, 130.57.19.0/24, 130.57.32.0/21, 137.65.0.0/16,
+147.2.0.0/17, 151.155.0.0/16, 164.99.0.0/16, 192.31.114.0/24, 192.94.118.0/24,
+192.108.102.0/24, 192.149.26.0/24, 195.109.215.0/24, 212.153.69.0/24
+
