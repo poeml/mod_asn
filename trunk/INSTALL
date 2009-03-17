@@ -1,6 +1,16 @@
 
+Prerequirements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A recent enough version of the Apache HTTP server is required. 2.2.6 or later
+should be used. In addition, the apr-util library needs to be 1.3.0 or newer.
+This is because the DBD database pool functionality was developed mainly
+between 2006 and 2007, and reached production quality at the time.
+
+
+
 Install the PostgreSQL ip4r datatype
------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * install the postgresql-ip4r package
   project page: http://ip4r.projects.postgresql.org/
@@ -19,7 +29,7 @@ Install the PostgreSQL ip4r datatype
 
 
 Create the database table
------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * it is assumed that a database exist already.
 
@@ -34,7 +44,7 @@ Create the database table
 
 
 Load the database with routing data
------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * edit asn_import.py for database connection data 
   (hostname, username, password, ...)
@@ -56,7 +66,7 @@ Load the database with routing data
 
 
 Build the Apache module
------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * compile, install, and enable it:
     apxs2 -ci mod_asn.c
@@ -68,7 +78,7 @@ Build the Apache module
     a2enmod asn
 
 Configure Apache - mod_dbd
------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * mod_dbd is the database adapter that provides a connection pool.
   Enable it, e.g.
@@ -102,7 +112,7 @@ Configure Apache - mod_dbd
 
 
 Configure Apache - mod_asn
------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * simply set "ASLookup On" in the directory context where you want it.
 * the shipped config (mod_asn.conf) shows an example.
@@ -130,3 +140,4 @@ Configure Apache - mod_asn
 
 That's it!
 
+Questions, bug reports, patches are welcome at info@mirrorbrain.org.
