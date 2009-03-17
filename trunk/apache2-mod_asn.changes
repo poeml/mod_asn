@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Mon Mar 16 22:50:13 CET 2009 - poeml@suse.de
+
+- update to r14:
+  - implement lookup of IP address taken from an arbitrary HTTP
+    request header, or an subprocess environment variable:
+    configurable via ASIPHeader and ASIPHeader directives.
+  - document the ASLookupDebug directive.
+  - bump version to 1.0.
+
+-------------------------------------------------------------------
 Mon Mar 16 21:29:44 CET 2009 - poeml@suse.de
 
 - update to svn r11; no functional change, mostly documentation
