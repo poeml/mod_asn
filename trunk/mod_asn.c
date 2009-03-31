@@ -283,8 +283,8 @@ static int asn_header_parser(request_rec *r)
         clientip = apr_table_get(r->headers_in, scfg->ip_header);
         debugLog(r, cfg, "client ip from %s header: %s", scfg->ip_header, clientip);
     } else if (scfg->ip_envvar) {
-        clientip = apr_table_get(r->subprocess_env, scfg->ip_header);
-        debugLog(r, cfg, "client ip from %s envvar: %s", scfg->ip_header, clientip);
+        clientip = apr_table_get(r->subprocess_env, scfg->ip_envvar);
+        debugLog(r, cfg, "client ip from %s envvar: %s", scfg->ip_envvar, clientip);
     } else {
         clientip = apr_pstrdup(r->pool, r->connection->remote_ip);
     }
