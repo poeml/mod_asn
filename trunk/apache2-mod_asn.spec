@@ -10,9 +10,16 @@
 
 # norootforbuild
 
-Name:           apache2-mod_asn
-BuildRequires:  apache2-devel apache2-prefork apache2-worker
+%if %{defined suse_version}
 %define apxs /usr/sbin/apxs2
+BuildRequires:  apache2-devel apache2-prefork apache2-worker 
+%endif
+#
+%if %{defined centos_version}
+%define apxs /usr/sbin/apxs
+BuildRequires:  httpd-devel
+%endif
+#
 %define apache apache2
 %define apache_libexecdir %(%{apxs} -q LIBEXECDIR)
 %define apache_sysconfdir %(%{apxs} -q SYSCONFDIR)
@@ -20,13 +27,23 @@ BuildRequires:  apache2-devel apache2-prefork apache2-worker
 %define apache_serverroot %(%{apxs} -q PREFIX)
 %define apache_localstatedir %(%{apxs} -q LOCALSTATEDIR)
 %define apache_mmn        %(MMN=$(%{apxs} -q LIBEXECDIR)_MMN; test -x $MMN && $MMN)
+#
+Name:           apache2-mod_asn
+Summary:        mod_asn looks up the AS and network prefix of IP address
 Version:        1.0
 Release:        0
 License:        Apache License, Version 2.0
 Group:          Productivity/Networking/Web/Servers
-Requires:       apache2 %{apache_mmn} 
+#
+%if %{defined suse_version}
+Requires:       apache2 >= 2.2.6 
+Requires:       %{apache_mmn} 
+Requires:       libapr-util1 >= 1.3.0
+%else
+Requires:       httpd
+%endif
+#
 Autoreqprov:    on
-Summary:        mod_asn looks up the AS and network prefix of IP address
 #
 # http://svn.poeml.de/svn/mod_asn/trunk
 Source10:       mod_asn.c
