@@ -17,6 +17,7 @@ try:
     mirrorbrain_instance = None
     if '-b' in sys.argv:
         mirrorbrain_instance = sys.argv[sys.argv.index('-b') + 1]
+        del sys.argv[1:3]
     config = mb.conf.Config(instance = mirrorbrain_instance)
     import mb.conn
     connection = mb.conn.Conn(config.dbconfig)
