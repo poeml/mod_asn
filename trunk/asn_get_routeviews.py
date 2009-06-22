@@ -70,9 +70,8 @@ def gen_grep(patc, lines):
     """Generate a sequence of lines that contain 
     a given regular expression"""
     for line in lines: 
-        if '{' in line:
-            continue
         if patc.search(line): yield line
+
 
 def gen_asn(lines): 
     """Generate a sequence of lines that end in 'i'
@@ -150,7 +149,16 @@ def main():
     """
     import re 
 
-    pat = r'^\*'
+    # ignore lines not matching regular expression for '* 1.2.3.4/11 '
+    # this filters seemingly broken lines like these:
+    #
+    # '*  12.127.255.255/3212.0.1.63                0      0      0 7018 i'
+    #
+    # '*  61.19.0.0/20     164.128.32.11            0      0      0 3303 1273 4651 2.17 i'
+    #
+    # '*  12.12.96.0/20    209.123.12.51            0      0      0 8001 3257 7018 32328 {32786} i'
+    #
+    pat = r'^\*\s+\d+\.\d+\.\d+\.\d+/\d+\s+.* \d+ [ie]'
     patc = re.compile(pat) 
 
     global filename
