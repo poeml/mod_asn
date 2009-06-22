@@ -76,6 +76,13 @@ Load the database with routing data
 
 * you should set up this script to run once per week by cron, so the database
   keeps updated regularly.
+  Here's an example for a setup in conjunction with MirrorBrain:
+    # update ASN data three times a week
+    35 2 * * mon,wed,fri   mirrorbrain  for i in $(mb instances); do \
+                                asn_get_routeviews | asn_import -b $i; done
+  The data is downloaded to the user's home directory in this case. Make sure the
+  script runs in a directory where other users don't have write permissions.
+
 
 
 Build the Apache module
