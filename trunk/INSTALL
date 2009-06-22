@@ -42,17 +42,30 @@ Create the database table
   (It is normal to see a "NOTICE" printed out by psql.)
 
 
+Config file for the import script
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you happen to have a MirrorBrain setup, you'll have a configuration file
+named /etc/mirrorbrain.conf, which is found and used by the asn_import script.
+No further configuration is needed. The MirrorBrain instance can be selected
+with the -b commandline option, if required.
+
+Alternatively, you need to create config file with the database connection
+info, named /etc/asn_import.conf, looking like this:
+
+    [general]
+    user = database_user
+    password = database_password
+    host = database_server
+    dbname = name_of_database
+
 
 Load the database with routing data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* edit asn_import.py for database connection data 
-  (hostname, username, password, ...)
-  FIXME: it is ugly to have to edit a script.
-
 * download the data and import it into the database:
 
-    ./asn_get_routeviews.py | ./asn_import.py
+    asn_get_routeviews.py | asn_import.py
 
 * this will take a few minutes. The routing data is 900 MB uncompressed
   (beginning of 2009). 
