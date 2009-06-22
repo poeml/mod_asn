@@ -78,7 +78,8 @@ def gen_asn(lines):
     """Generate a sequence of lines that end in 'i'
     and return the first, third last and second word for each of them.
 
-    Complain if a line doesn't end in 'i'.
+    Ignore lines ending in '?' (that's marking incomplete entries), 
+    but complain if a line otherwise doesn't end in 'i' or 'e'.
 
     For prefix 0.0.0.0/0, we don't return AS number 286 - but rather zero,
     because this is more meaningful later. An AS with number 0 doesn't exist.
@@ -89,9 +90,11 @@ def gen_asn(lines):
     """
     for line in lines: 
         s = line.split()
-        if s[-1] != 'i':
+        if s[-1] == '?':
+            continue
+        if s[-1] not in ['i', 'e']:
             print >>sys.stderr, repr(line)
-            sys.exit('Error: this is unusal, line ends in %r, not \'i\'' % s[-1])
+            sys.exit('Error: unusal line seen, ending in %r' % s[-1])
         if s[1].startswith('0.0.0.0/0'):
             # see comment above
             yield s[1], '0', '0'
