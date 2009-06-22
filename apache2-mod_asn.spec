@@ -96,12 +96,12 @@ cp -p %{S:10} %{S:11} %{S:20} %{S:21} %{S:22} %{S:30} %{S:31} .
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/%{apache_libexecdir}
-cp -p .libs/mod_asn.so $RPM_BUILD_ROOT/%{apache_libexecdir}
+rm -rf %{buildroot}
+mkdir -p %{buildroot}%{apache_libexecdir}
+cp -p .libs/mod_asn.so %{buildroot}%{apache_libexecdir}
 
-install -D -m 0755 asn_import.py $RPM_BUILD_ROOT/%{_bindir}/asn_import
-install -D -m 0755 asn_get_routeviews.py $RPM_BUILD_ROOT/%{_bindir}/asn_get_routeviews
+install -D -m 0755 asn_import.py %{buildroot}%{_bindir}/asn_import
+install -D -m 0755 asn_get_routeviews.py %{buildroot}%{_bindir}/asn_get_routeviews
 
 %files
 %defattr(-,root,root)
