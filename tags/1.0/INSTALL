@@ -1,0 +1,151 @@
+
+Prerequirements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A recent enough version of the Apache HTTP server is required. 2.2.6 or later
+should be used. In addition, the apr-util library needs to be 1.3.0 or newer.
+This is because the DBD database pool functionality was developed mainly
+between 2006 and 2007, and reached production quality at the time.
+
+
+
+Install the PostgreSQL ip4r datatype
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* install the postgresql-ip4r package
+  project page: http://ip4r.projects.postgresql.org/
+  openSUSE/SLE rpm package: 
+     http://download.opensuse.org/repositories/server:/database:/postgresql/
+
+
+* install the datatype, done by executing sql statements from the shipped file:
+    su - postgres
+    psql -f /usr/share/postgresql-ip4r/ip4r.sql template1
+
+  ("template1" means that all databases that are created later will have the datatype.
+  To install it onto an existing database, use your database name instead.)
+
+  (It is normal to see a a good screenful of out printed out by psql.)
+
+
+Create the database table
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* it is assumed that a database exist already.
+
+* execute the sql statements from asn.sql (shipping with mod_asn):
+    psql -U <dbuser> -f asn.sql <dbname>
+
+  In this example, a table named pfx2asn would be created in the 
+  <dbname>. database.
+
+  (It is normal to see a "NOTICE" printed out by psql.)
+
+
+
+Load the database with routing data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* edit asn_import.py for database connection data 
+  (hostname, username, password, ...)
+  FIXME: it is ugly to have to edit a script.
+
+* download the data and import it into the database:
+
+    ./asn_get_routeviews.py | ./asn_import.py
+
+* this will take a few minutes. The routing data is 900 MB uncompressed
+  (beginning of 2009). 
+
+* the same command can also be used to update the database later, with fresh
+  routeviews data. Just run it again. It can be done in production while the
+  database is in active use.
+
+* you should set up this script to run once per week by cron, so the database
+  keeps updated regularly.
+
+
+Build the Apache module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* compile, install, and enable it:
+    apxs2 -ci mod_asn.c
+
+* or install openSUSE/SLE RPM package from here:
+  http://download.opensuse.org/repositories/Apache:/Modules/ 
+
+* and enable it
+    a2enmod asn
+
+Configure Apache / mod_dbd
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* mod_dbd is the database adapter that provides a connection pool.
+  Enable it, e.g.
+    a2enmod asn
+
+* Put the following configuration into server-wide context.
+
+  ------------------------------------------------------------------------
+  # whis configures the connection pool.
+  # for prefork, this configuration is inactive. prefork simply uses 1
+  # connection per child.
+  <IfModule !prefork.c>
+          DBDMin  0
+          DBDMax  32
+          DBDKeep 4
+          DBDExptime 10
+  </IfModule>
+  ------------------------------------------------------------------------
+
+* configure the database driver.
+
+  Put this configuration into server-wide OR vhost context. Make the file
+  chmod 0640, owned root:root because it will contain the database password.
+
+  ------------------------------------------------------------------------
+  DBDriver pgsql
+  # note that the connection string (which is passed straight through to
+  # PGconnectdb in this case) looks slightly different - pass vs. password
+  DBDParams "host=localhost user=mb password=12345 dbname=mb_samba connect_timeout=15"
+  ------------------------------------------------------------------------
+
+
+Configure mod_asn
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* simply set "ASLookup On" in the directory context where you want it.
+* the shipped config (mod_asn.conf) shows an example.
+
+* set "ASSetHeaders Off" if you don't want the data to be added to the HTTP
+  response headers.
+
+* you may use the ASLookupQuery directive (server-wide context) to define a
+  custom SQL query. The compiled in default is:
+  SELECT pfx, asn FROM pfx2asn WHERE pfx >>= ip4r(%s) ORDER BY ip4r_size(pfx) LIMIT 1
+
+* the client IP address is the one that the requests originates from. But if
+  mod_asn is running behind a frontend server, the frontend can pass the IP via
+  a header and mod_asn can look at the header instead, and you can configure it
+  to look at that header like this: 
+    ASIPHeader X-Forwarded-For
+
+* alternatively, if you want to use mod_rewrite you can also make mod_asn look
+  at a variable in Apache's subprocess environment:
+    ASIPEnvvar CLIENT_IP
+
+* "ASLookupDebug On" can be set to switch on debug logging. It can be set per
+  directory.
+
+
+Logging
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* since the data being looked up is stored in the subprocess environment, it is
+  trivial to log it, by adding the following placeholder to the LogFormat:
+    ASN:%{ASN}e P:%{PFX}e
+
+
+That's it!
+
+Questions, bug reports, patches are welcome at info@mirrorbrain.org.
