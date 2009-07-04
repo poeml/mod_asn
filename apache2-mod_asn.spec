@@ -10,16 +10,9 @@
 
 # norootforbuild
 
-%if %{defined suse_version}
+Name:           apache2-mod_asn
+BuildRequires:  apache2-devel apache2-prefork apache2-worker
 %define apxs /usr/sbin/apxs2
-BuildRequires:  apache2-devel apache2-prefork apache2-worker 
-%endif
-#
-%if %{defined centos_version}
-%define apxs /usr/sbin/apxs
-BuildRequires:  httpd-devel
-%endif
-#
 %define apache apache2
 %define apache_libexecdir %(%{apxs} -q LIBEXECDIR)
 %define apache_sysconfdir %(%{apxs} -q SYSCONFDIR)
@@ -27,23 +20,13 @@ BuildRequires:  httpd-devel
 %define apache_serverroot %(%{apxs} -q PREFIX)
 %define apache_localstatedir %(%{apxs} -q LOCALSTATEDIR)
 %define apache_mmn        %(MMN=$(%{apxs} -q LIBEXECDIR)_MMN; test -x $MMN && $MMN)
-#
-Name:           apache2-mod_asn
-Summary:        mod_asn looks up the AS and network prefix of IP address
 Version:        1.0
 Release:        0
 License:        Apache License, Version 2.0
 Group:          Productivity/Networking/Web/Servers
-#
-%if %{defined suse_version}
-Requires:       apache2 >= 2.2.6 
-Requires:       %{apache_mmn} 
-Requires:       libapr-util1 >= 1.3.0
-%else
-Requires:       httpd
-%endif
-#
+Requires:       apache2 %{apache_mmn} 
 Autoreqprov:    on
+Summary:        mod_asn looks up the AS and network prefix of IP address
 #
 # http://svn.poeml.de/svn/mod_asn/trunk
 Source10:       mod_asn.c
@@ -96,12 +79,12 @@ cp -p %{S:10} %{S:11} %{S:20} %{S:21} %{S:22} %{S:30} %{S:31} .
 
 
 %install
-rm -rf %{buildroot}
-mkdir -p %{buildroot}%{apache_libexecdir}
-cp -p .libs/mod_asn.so %{buildroot}%{apache_libexecdir}
+rm -rf $RPM_BUILD_ROOT
+mkdir -p $RPM_BUILD_ROOT/%{apache_libexecdir}
+cp -p .libs/mod_asn.so $RPM_BUILD_ROOT/%{apache_libexecdir}
 
-install -D -m 0755 asn_import.py %{buildroot}%{_bindir}/asn_import
-install -D -m 0755 asn_get_routeviews.py %{buildroot}%{_bindir}/asn_get_routeviews
+install -D -m 0755 asn_import.py $RPM_BUILD_ROOT/%{_bindir}/asn_import
+install -D -m 0755 asn_get_routeviews.py $RPM_BUILD_ROOT/%{_bindir}/asn_get_routeviews
 
 %files
 %defattr(-,root,root)

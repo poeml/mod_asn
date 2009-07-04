@@ -70,15 +70,15 @@ def gen_grep(patc, lines):
     """Generate a sequence of lines that contain 
     a given regular expression"""
     for line in lines: 
+        if '{' in line:
+            continue
         if patc.search(line): yield line
-
 
 def gen_asn(lines): 
     """Generate a sequence of lines that end in 'i'
     and return the first, third last and second word for each of them.
 
-    Ignore lines ending in '?' (that's marking incomplete entries), 
-    but complain if a line otherwise doesn't end in 'i' or 'e'.
+    Complain if a line doesn't end in 'i'.
 
     For prefix 0.0.0.0/0, we don't return AS number 286 - but rather zero,
     because this is more meaningful later. An AS with number 0 doesn't exist.
@@ -89,11 +89,9 @@ def gen_asn(lines):
     """
     for line in lines: 
         s = line.split()
-        if s[-1] == '?':
-            continue
-        if s[-1] not in ['i', 'e']:
+        if s[-1] != 'i':
             print >>sys.stderr, repr(line)
-            sys.exit('Error: unusal line seen, ending in %r' % s[-1])
+            sys.exit('Error: this is unusal, line ends in %r, not \'i\'' % s[-1])
         if s[1].startswith('0.0.0.0/0'):
             # see comment above
             yield s[1], '0', '0'
@@ -149,16 +147,7 @@ def main():
     """
     import re 
 
-    # ignore lines not matching regular expression for '* 1.2.3.4/11 '
-    # this filters seemingly broken lines like these:
-    #
-    # '*  12.127.255.255/3212.0.1.63                0      0      0 7018 i'
-    #
-    # '*  61.19.0.0/20     164.128.32.11            0      0      0 3303 1273 4651 2.17 i'
-    #
-    # '*  12.12.96.0/20    209.123.12.51            0      0      0 8001 3257 7018 32328 {32786} i'
-    #
-    pat = r'^\*\s+\d+\.\d+\.\d+\.\d+/\d+\s+.* \d+ [ie]'
+    pat = r'^\*'
     patc = re.compile(pat) 
 
     global filename

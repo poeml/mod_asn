@@ -1,7 +1,0 @@
-.libs/mod_asn.so		usr/lib/apache2/modules
-debian/asn.load			etc/apache2/mods-available
-CHANGES				usr/share/doc/libapache2-mod-asn
-INSTALL				usr/share/doc/libapache2-mod-asn
-README				usr/share/doc/libapache2-mod-asn
-asn_get_routeviews		usr/bin
-asn_import			usr/bin

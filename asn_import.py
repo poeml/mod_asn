@@ -2,48 +2,25 @@
 
 
 
-import os, os.path, sys
+import os, sys
 import psycopg2
 import fileinput
 
 # change these
-tablename = 'pfx2asn'
-# not needed when a MirrorBrain setup exists
-conffile = '/etc/asn_import.conf'
+dbname='...'
+user='...'
+password='...'
+host='...'
+tablename='pfx2asn'
 
-# is there a MirrorBrain config file? If yes, use that.
+
 try:
-    import mb.conf
-    mirrorbrain_instance = None
-    if '-b' in sys.argv:
-        mirrorbrain_instance = sys.argv[sys.argv.index('-b') + 1]
-        del sys.argv[1:3]
-    config = mb.conf.Config(instance = mirrorbrain_instance)
-    import mb.conn
-    connection = mb.conn.Conn(config.dbconfig)
-    cursor = connection.Pfx2asn._connection.getConnection().cursor()
-except ImportError:
-    # alternatively, is there our own config file?
-    if os.path.exists(conffile):
-        import ConfigParser
-        cp = ConfigParser.SafeConfigParser()
-        cp.read(conffile)
-        config = dict(cp.items('general'))
-        connection = psycopg2.connect("host=%s dbname=%s user=%s password=%s" \
-                % (config['host'], config['dbname'], config['user'], config['password']));
-        cursor = connection.cursor()
-    else:
-        print >>sys.stderr, """
-Error: No config found. Please create %r with the following contents:
+    connection = psycopg2.connect("host=%s dbname=%s user=%s password=%s" \
+            % (host, dbname, user, password));
+except:
+    sys.exit('Unable to connect to the database')
 
-[general]
-user = database_user
-password = database_password
-host = database_server
-dbname = name_of_database
 
-""" % conffile
-        sys.exit()
 
 
 
@@ -55,6 +32,7 @@ def import_raw():
     except:
         pass
 
+    cursor = connection.cursor()
     cursor.execute("begin")
     cursor.execute("delete from %s" % tablename)
 
