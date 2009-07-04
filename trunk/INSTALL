@@ -135,15 +135,24 @@ Troubleshooting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If Apache doesn't start, or anything else seems wrong, make sure to check
-Apache's error_log.
+Apache's error_log. It usually points into the right direction.
 
-General note about Apache configuration which  might be helpful sometimes:
-00:26 <mirrorbrain> with the config, it is important to always pay attention where to put it - the order doesn't matter, so things look easy, but the concept of directory contexts and vhost contexts must not be overlooked
-00:26 <mirrorbrain> things can be "global", or inside a <VirtualHost> container, or within a <Directory> container.
-00:27 <mirrorbrain> I have tried to make sure, in the install docs, to always point out in which context the directives belong
-00:27 <mirrorbrain> that's important because Apache applies the config recursively onto subdirectories, and for each request it does a "merge" of possibly overlapping directives
-00:28 <mirrorbrain> settings in vhost context are merged only when the server forks
-00:28 <mirrorbrain> but settings in directory context are merged for each request. Therefore it makes sense to put some directives here and some there - for performance reasons.
+A general note about Apache configuration which might be in order. With most
+config directives, it is important to pay attention where to put them - the
+order does not matter, but the context does. There is the concept of directory
+contexts and vhost contexts, which must not be overlooked.
+Things can be "global", or inside a <VirtualHost> container, or within a
+<Directory> container.
+
+This matters because Apache applies the config recursively onto subdirectories,
+and for each request it does a "merge" of possibly overlapping directives.
+Settings in vhost context are merged only when the server forks, while settings
+in directory context are merged for each request. This is also the reason why
+some of mod_asn's config directives are programmed to be used in one or the
+other context, for performance reasons.
+
+The install docs you are reading attempt to always point out in which context
+the directives belong.
 
 
 
@@ -178,27 +187,35 @@ Configure mod_asn
 Testing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-TBD
 
-00:33 <mirrorbrain> once mod_asn is working, you should be able to do some arbitrary request and see mod_asn doing something. 
-00:34 <mirrorbrain> with local IPs (like 192.168.x.x) there's not much to look up though.
-00:35 <mirrorbrain> however, you can play with sending X-Forwarded-For headers (if ASIPHeader is enabled) and can lookup arbitrary IPs by that.
-00:35 <mirrorbrain> at the HTTP response headers
-00:36 <mirrorbrain> % curl -sI 'http://download.opensuse.org/distribution/11.1/iso/openSUSE-11.1-Addon-Lang-i586.iso' 
-00:36 <mirrorbrain> HTTP/1.1 302 Found
-00:36 <mirrorbrain> Date: Fri, 26 Jun 2009 22:35:50 GMT
-00:36 <mirrorbrain> Server: Apache/2.2.11 (Linux/SUSE)
-00:36 <mirrorbrain> X-Prefix: 87.78.0.0/15
-00:36 <mirrorbrain> X-AS: 8422
-00:36 <mirrorbrain> X-MirrorBrain-Mirror: ftp.uni-kl.de
-00:36 <mirrorbrain> X-MirrorBrain-Realm: country
-00:36 <mirrorbrain> Location: http://ftp.uni-kl.de/pub/linux/opensuse/distribution/11.1/iso/openSUSE-11.1-Addon-Lang-i586.iso
-00:36 <mirrorbrain> Content-Type: text/html; charset=iso-8859-1
-00:36 <mirrorbrain> the X-Prefix and X-AS headers are only added if configured, though
-00:36 <mirrorbrain> also helpful is to set ASLookupDebug On for some directory, and you'll see every step that the module does logged to the error_log
-00:37 <mirrorbrain> you can pass a X-Forwarded-For header with curl like this:
-00:37 <mirrorbrain> curl -sv -H "X-Forwarded-For: 128.176.216.184"
-00:37 <mirrorbrain> <url>
+Once mod_asn is configured, you should be able to verify that it works by doing
+some arbitrary request and looking at the response.
+
+At the HTTP response headers
+
+   % curl -sI 'http://download.opensuse.org/distribution/11.1/iso/openSUSE-11.1-Addon-Lang-i586.iso' 
+  HTTP/1.1 302 Found
+  Date: Fri, 26 Jun 2009 22:35:50 GMT
+  Server: Apache/2.2.11 (Linux/SUSE)
+  X-Prefix: 87.78.0.0/15
+  X-AS: 8422
+  X-MirrorBrain-Mirror: ftp.uni-kl.de
+  X-MirrorBrain-Realm: country
+  Location: http://ftp.uni-kl.de/pub/linux/opensuse/distribution/11.1/iso/openSUSE-11.1-Addon-Lang-i586.iso
+  Content-Type: text/html; charset=iso-8859-1
+
+The X-Prefix and X-AS headers are obviously only added in the response if mod_asn is configured to do so.
+
+When testing with local IP addresses (like 192.168.x.x), there's not much to
+look up, though. You could however play with sending X-Forwarded-For headers,
+provided that you configured "ASIPHeader X-Forwarded-For", and can lookup
+arbitrary IPs thereby. You can use curl with the following option, causing it
+to add an X-Forwarded-For header with arbitrary value to the request headers:
+
+   % curl -sv -H "X-Forwarded-For: 128.176.216.184" <url>
+
+It can be helpful to set "ASLookupDebug On" for some directory - you'll see
+every step which the module does being logged to the error_log.
 
 
 
@@ -212,4 +229,4 @@ Logging
 
 That's it!
 
-Questions, bug reports, patches are welcome at info@mirrorbrain.org.
+Questions, bug reports, patches are welcome at mirrorbrain@mirrorbrain.org.
