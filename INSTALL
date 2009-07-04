@@ -16,7 +16,9 @@ Install the PostgreSQL ip4r datatype
   project page: http://ip4r.projects.postgresql.org/
   openSUSE/SLE rpm package: 
      http://download.opensuse.org/repositories/server:/database:/postgresql/
-
+  The Debian package is called postgresql-8.3-ip4r.
+  Gentoo portage overlay:
+    http://github.com/ramereth/ramereth-overlay/tree
 
 * install the datatype, done by executing sql statements from the shipped file:
     su - postgres
@@ -91,8 +93,13 @@ Build the Apache module
 * compile, install, and enable it:
     apxs2 -ci mod_asn.c
 
-* or install openSUSE/SLE RPM package from here:
-  http://download.opensuse.org/repositories/Apache:/Modules/ 
+* or install a binary package from here:
+  openSUSE/SLE:
+    http://download.opensuse.org/repositories/Apache:/MirrorBrain/ 
+  Debian/Ubuntu:
+    http://download.opensuse.org/repositories/Apache:/MirrorBrain/
+  Gentoo portage overlay:
+    http://github.com/ramereth/ramereth-overlay/tree
 
 * and enable it
     a2enmod asn
