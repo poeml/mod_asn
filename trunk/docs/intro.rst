@@ -6,11 +6,11 @@ lookups of the :term:`autonomous system (AS)` number, and the :term:`network pre
 IP address is contained in. 
 
 It is written with scalability in mind. To do high-speed lookups, it uses the
-PostgreSQL ip4r datatype that is indexable with a :term:`Patricia Trie`
-algorithm to store network prefixes.
+PostgreSQL :term:`ip4r data type` that is indexable with a :term:`Patricia
+Trie` algorithm to store network prefixes.
 
-It comes with script to create such a database and update it with snapshots from
-router's "view of the world".
+It comes with a script to create such a database, and update it with snapshots
+from a router's "view of the world".
 
 The module sets the looked up data as :term:`Apache env table` variables, for
 use by other Apache module to do things with it, or for logging -- and it can
@@ -31,7 +31,7 @@ Performance
 -----------
 
 The database with all ~250.000 prefixes is about 20-30MB in size in the form of
-a PostgreSQL database. Without any tuning, it is able to to >3000 lookups per
+a PostgreSQL database. Without any tuning, it is able to do >3000 lookups per
 second on a MacBook Pro (tested with random IPs, a single connection, and
 client written in Python running on the same machine).
 

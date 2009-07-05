@@ -5,8 +5,8 @@
 mod_asn: An Apache module to look up routing data
 =================================================
 
-mod_asn documentation contents
-==============================
+.. mod_asn documentation contents
+.. ==============================
 
 
 :Release: |version|
@@ -18,9 +18,12 @@ Contents:
    :maxdepth: 2
 
    intro
+   license
    installation
    glossary
    changes
+
+..   usage
 
 
 Indices and tables

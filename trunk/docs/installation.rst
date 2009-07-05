@@ -1,4 +1,8 @@
 
+Installation
+======================
+
+
 Prerequirements
 ------------------------------------
 
@@ -9,53 +13,77 @@ between 2006 and 2007, and reached production quality at the time.
 
 
 
-Install the PostgreSQL ip4r datatype
-------------------------------------
+Installing the ip4r data type into PostgreSQL
+----------------------------------------------
 
-* install the postgresql-ip4r package
+You need to install the contributed `ip4r` data type into PostgreSQL. This
+project is found at http://ip4r.projects.postgresql.org/. To install it,
+a shared library needs to be built to be loaded into PostgreSQL, and an SQL
+script needs to be run to make the data type known to PostgreSQL and install
+functions that use it.
 
-  * project page: http://ip4r.projects.postgresql.org/
-  * openSUSE/SLE rpm package: 
+It would preferable to use a binary package if one exists for your operating
+system:
+
+openSUSE/SLE rpm package: 
     http://download.opensuse.org/repositories/server:/database:/postgresql/
-  * The Debian package is called postgresql-8.3-ip4r.
-  * Gentoo portage overlay:
+
+The Debian package is called postgresql-8.3-ip4r.
+
+Gentoo portage overlay:
     http://github.com/ramereth/ramereth-overlay/tree
 
-* install the datatype, done by executing sql statements from the shipped file::
+If a manual install is required, you need the PostgresSQL devel package of your
+operating system and compile a shared library, following the procedure
+described in the installation instructions provided with the software. 
+
+After installing the shared object by package or manual install, you will need
+to run the SQL script provided with the ip4r sources::
 
     su - postgres
     psql -f /usr/share/postgresql-ip4r/ip4r.sql template1
 
-  ("template1" means that all databases that are created later will have the datatype.
-  To install it onto an existing database, use your database name instead.)
+"template1" means that all databases that are created later will have the
+datatype available. To install it onto an existing database, use your database
+name instead of "template1".
 
-  (It is normal to see a a good screenful of out printed out by psql.)
+It is normal to see a a good screenful of output printed out by the above
+:command:`psql` command.
 
 
-Create the database table
+
+Creating the database table
 ------------------------------------
 
-* it is assumed that a database exist already.
+Assuming that a database exists already, execute the following command to
+install the pfx2asn table into it. The :file:`asn.sql` file ships with
+mod_asn::
 
-* execute the sql statements from asn.sql (shipping with mod_asn):
     psql -U <dbuser> -f asn.sql <dbname>
 
-  In this example, a table named pfx2asn would be created in the 
-  <dbname>. database.
+If you see some "NOTICE" printed out by the command, that's normal; it's due to
+the default logging setup of PostgreSQL which is verbose.
 
-  (It is normal to see a "NOTICE" printed out by psql.)
+.. note::
+   The command creates a table named `pfx2asn` in the <dbname> database. Since
+   the table name is used in some other places, so you should not change it.
+
 
 
 Config file for the import script
 ------------------------------------
 
-If you happen to have a MirrorBrain setup, you'll have a configuration file
-named /etc/mirrorbrain.conf, which is found and used by the asn_import script.
-No further configuration is needed. The MirrorBrain instance can be selected
-with the -b commandline option, if required.
+.. versionadded:: 1.1
+
+If you happen to have a `MirrorBrain <http://mirrorbrain.org/>`_ setup, you'll
+have a configuration file named :file:`/etc/mirrorbrain.conf`, which is
+automatically used by the :program:`asn_import` script. No further
+configuration is needed then. If you have several MirrorBrain instances, the
+instance into which to import the data can be selected with the ``-b``
+commandline option.
 
 Alternatively, you need to create config file with the database connection
-info, named /etc/asn_import.conf, looking like this:
+info, named :file:`/etc/asn_import.conf`, looking like this::
 
     [general]
     user = database_user
@@ -67,60 +95,88 @@ info, named /etc/asn_import.conf, looking like this:
 Load the database with routing data
 ------------------------------------
 
-* download the data and import it into the database:
+The data is downloaded and import into the database with the following
+command::
 
     asn_get_routeviews.py | asn_import.py
 
-* this will take a few minutes. The routing data is 900 MB uncompressed
-  (beginning of 2009). 
+It is recommendable to run the command as unprivileged user, for safety
+reasons.
 
-* the same command can also be used to update the database later, with fresh
-  routeviews data. Just run it again. It can be done in production while the
-  database is in active use.
+It will take at least a few minutes to download and process the data - about
+30MB are downloaded, and the data is about 1GB uncompressed (beginning of
+2009). (In the postgresql database it will need only about 40MB, including the
+index.)
 
-* you should set up this script to run once per week by cron, so the database
-  keeps updated regularly.
-  Here's an example for a setup in conjunction with MirrorBrain::
+The data changes almost constantly, but most of the changes won't be directly
+relevant to you. However, you should regularly update from time to time. A
+weekly or monthly schedule could be entirely sufficient, depending on what you
+use the data for.
+
+.. warning::
+   You should be aware of the fact that routeview.org kindly provides this data
+   to the public. You should use their bandwidth with consideration.
+
+The command shown above can be used to update the database with fresh
+routeviews data, by just running it again. This works in production while the
+database is in active use; it is done in a way that doesn't block any ongoing
+connections.
+
+.. note::
+   The tarball with the data snapshot will be downloaded only if it doesn't
+   exist already in the current working directory. To redownload it, remove the
+   file first.
+
+An example for setting up the script to download and import the data several
+times a week could look like below. In the example, mod_asn runs in conjunction
+with MirrorBrain, and all MirrorBrain instances are updated::
 
     # update ASN data three times a week
     35 2 * * mon,wed,fri   mirrorbrain  for i in $(mb instances); do \
                                 asn_get_routeviews | asn_import -b $i; done
 
-  The data is downloaded to the user's home directory in this case. Make sure the
-  script runs in a directory where other users don't have write permissions.
+The data is downloaded to the user's home directory in this case. Make sure the
+script runs in a directory where other users don't have write permissions.
 
 
 
-Build the Apache module
+Install the Apache module
 ------------------------------------
 
-* compile, install, and enable it:
-    apxs2 -ci mod_asn.c
+There are binary packages of mod_asn at the following locations:
 
-* or install a binary package from here:
-
-  * openSUSE/SLE:
+openSUSE/SLE:
     http://download.opensuse.org/repositories/Apache:/MirrorBrain/ 
-  * Debian/Ubuntu:
+Debian/Ubuntu:
     http://download.opensuse.org/repositories/Apache:/MirrorBrain/
-  * Gentoo portage overlay:
+Gentoo portage overlay:
     http://github.com/ramereth/ramereth-overlay/tree
 
-* and enable it::
+To manually build mod_asn, all you need to do normally is to use
+:program:`apxs2` with -c to compile and -i to install the module::
+
+    apxs2 -ci mod_asn.c
+
+To enable the module to be loaded into Apache, you typically will have to run a
+command like the following - depending on your platform::
+
     a2enmod asn
+
 
 Configure Apache / mod_dbd
 ------------------------------------
 
-* mod_dbd is the database adapter that provides a connection pool.
-  Enable it, e.g.::
+mod_dbd provides the database connection pool that is used by mod_asn. The
+module needs to be loaded into Apache::
 
     a2enmod dbd
 
-* Put the following configuration into server-wide context::
+The DBD module needs a database adapter which connects to the database. 
 
-    # whis configures the connection pool.
-    # for prefork, this configuration is inactive. prefork simply uses 1
+Put the following configuration into server-wide context::
+
+    # configure the dbd connection pool.
+    # for the prefork MPM, this configuration is inactive. Prefork simply uses 1
     # connection per child.
     <IfModule !prefork.c>
             DBDMin  0
@@ -129,15 +185,19 @@ Configure Apache / mod_dbd
             DBDExptime 10
     </IfModule>
 
-* configure the database driver.
+As you might note, the cited configuration is relevant for threaded MPMs only.
+If you plan to use the prefork MPM, you don't need it. You should however
+consider using a threaded MPM if you intend to serve high volumes of requests,
+because it will scale better, which is partly due to the fact that the threads
+within one process can share a common database pool, which results in fewer
+connections that are better utilized, and persistance of connections.
 
-  Put this configuration into server-wide OR vhost context. Make the file
-  chmod 0640, owned root:root because it will contain the database password::
+The database driver needs to be configured as well, by putting the following
+configuration into *server-wide* **or** *vhost* context. Make the file `chmod
+0640` and owned by `root:root`, because it will contain the database password::
 
     DBDriver pgsql
-    # note that the connection string (which is passed straight through to
-    # PGconnectdb in this case) looks slightly different - pass vs. password
-    DBDParams "host=localhost user=mb password=12345 dbname=mb_samba connect_timeout=15"
+    DBDParams "host=localhost user=mb password=12345 dbname=mb connect_timeout=15"
 
 
 Troubleshooting
@@ -149,9 +209,9 @@ Apache's error_log. It usually points into the right direction.
 A general note about Apache configuration which might be in order. With most
 config directives, it is important to pay attention where to put them - the
 order does not matter, but the context does. There is the concept of directory
-contexts and vhost contexts, which must not be overlooked.
-Things can be "global", or inside a <VirtualHost> container, or within a
-<Directory> container.
+contexts and vhost contexts, which must not be overlooked.  Things can be
+"global", or inside a <VirtualHost> container, or within a <Directory>
+container.
 
 This matters because Apache applies the config recursively onto subdirectories,
 and for each request it does a "merge" of possibly overlapping directives.
@@ -168,36 +228,49 @@ the directives belong.
 Configure mod_asn
 ------------------------------------
 
-* simply set "ASLookup On" in the directory context where you want it.
-* the shipped config (mod_asn.conf) shows an example.
+.. describe:: ASLookup
 
-* set "ASSetHeaders Off" if you don't want the data to be added to the HTTP
-  response headers.
+Simply set ``ASLookup On`` in the directory context where you want it to be
+active. The shipped config (:file:`mod_asn.conf`) shows an example.
 
-* you may use the ASLookupQuery directive (server-wide context) to define a
-  custom SQL query. The compiled in default is:
-  SELECT pfx, asn FROM pfx2asn WHERE pfx >>= ip4r(%s) ORDER BY ip4r_size(pfx) LIMIT 1
+.. describe:: ASSetHeaders
 
-* the client IP address is the one that the requests originates from. But if
-  mod_asn is running behind a frontend server, the frontend can pass the IP via
-  a header and mod_asn can look at the header instead, and you can configure it
-  to look at that header like this::
+Set ``ASSetHeaders Off`` if you don't want the data to be added to the HTTP
+response headers. In that case, the lookup result is only available through the
+env table for perusal of other Apache modules.
+
+.. describe:: ASIPHeader
+
+The client IP address looked up is the one that the requests originates from.
+If mod_asn is running behind a frontend server and can't see the original
+client IP address, the frontend may pass the IP via a header and mod_asn can
+look at the header instead. You can configure this like below::
 
     ASIPHeader X-Forwarded-For
 
-* alternatively, if you want to use mod_rewrite you can also make mod_asn look
-  at a variable in Apache's subprocess environment::
+.. describe:: ASIPEnvvar
+
+Alternatively, if you need to use mod_rewrite, you can also make mod_asn look
+at any variable in Apache's subprocess environment for the IP, for instance::
 
     ASIPEnvvar CLIENT_IP
 
-* "ASLookupDebug On" can be set to switch on debug logging. It can be set per
-  directory.
+.. describe:: ASLookupDebug
+
+``ASLookupDebug`` can be set to ``On`` to switch on debug logging. This can be
+done per directory.
+
+.. describe:: ASLookupQuery
+
+You may use the ``ASLookupQuery`` directive (server-wide context) to define a
+custom SQL query. The compiled in default is::
+
+  SELECT pfx, asn FROM pfx2asn WHERE pfx >>= ip4r(%s) ORDER BY ip4r_size(pfx) LIMIT 1
 
 
 
 Testing
 ------------------------------------
-
 
 Once mod_asn is configured, you should be able to verify that it works by doing
 some arbitrary request and looking at the response::
@@ -213,17 +286,19 @@ some arbitrary request and looking at the response::
     Location: http://ftp.uni-kl.de/pub/linux/opensuse/distribution/11.1/iso/openSUSE-11.1-Addon-Lang-i586.iso
     Content-Type: text/html; charset=iso-8859-1
 
-The X-Prefix and X-AS headers are obviously only added in the response if mod_asn is configured to do so.
+(The `X-Prefix` and `X-AS` headers are not present in the response if mod_asn
+is configured with ``ASSetHeaders Off``.
 
-When testing with local IP addresses (like 192.168.x.x), there's not much to
-look up, though. You could however play with sending X-Forwarded-For headers,
-provided that you configured "ASIPHeader X-Forwarded-For", and can lookup
-arbitrary IPs thereby. You can use curl with the following option, causing it
-to add an X-Forwarded-For header with arbitrary value to the request headers:
+When testing with local IP addresses like 192.168.x.x, there's not much to look
+up. These addresses are reserved for local use (see :rfc:`1918`). You could
+however play with sending X-Forwarded-For headers, provided that you configured
+"ASIPHeader X-Forwarded-For", and can lookup arbitrary IPs thereby. You can use
+:program:`curl` with the following option, causing it to add an X-Forwarded-For
+header with arbitrary value to the request headers::
 
-   % curl -sv -H "X-Forwarded-For: 128.176.216.184" <url>
+     % curl -sv -H "X-Forwarded-For: 128.176.216.184" <url>
 
-It can be helpful to set "ASLookupDebug On" for some directory - you'll see
+It can be helpful to set ``ASLookupDebug On`` for some directory - you'll see
 every step which the module does being logged to the error_log.
 
 
@@ -231,8 +306,8 @@ every step which the module does being logged to the error_log.
 Logging
 ------------------------------------
 
-* since the data being looked up is stored in the subprocess environment, it is
-  trivial to log it, by adding the following placeholder to the LogFormat::
+Since the data being looked up is stored in the subprocess environment, it is
+trivial to log it, by adding the following placeholder to the ``LogFormat``::
 
     ASN:%{ASN}e P:%{PFX}e
 
