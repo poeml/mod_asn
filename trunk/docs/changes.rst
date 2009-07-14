@@ -52,6 +52,6 @@ Release Notes/Change History
 Older changes:
 -----------------
 
-Please refer to the subversion changelog: http://svn.poeml.de/svn/mod_asn/trunk
-respectively http://svn.poeml.de/viewvc/mod_asn/trunk/
+Please refer to the subversion changelog: http://svn.mirrorbrain.org/svn/mod_asn/trunk
+respectively http://svn.mirrorbrain.org/viewvc/mod_asn/trunk/
 
