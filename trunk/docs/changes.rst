@@ -2,7 +2,7 @@
 Release Notes/Change History
 ============================
 
-1.1:
+1.1
 -----------------
 
 * mod_asn.c: 
@@ -37,7 +37,7 @@ Release Notes/Change History
 * add debian subdirectory for building Debian packages
 
 
-1.0:
+1.0
 -----------------
 
 * mod_asn.c:
@@ -49,7 +49,7 @@ Release Notes/Change History
 * document an example how to log the looked up data
 
 
-Older changes:
+Older changes
 -----------------
 
 Please refer to the subversion changelog: http://svn.mirrorbrain.org/svn/mod_asn/trunk
