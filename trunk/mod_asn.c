@@ -22,6 +22,8 @@
  * look up the autonomous system, and network prefix, that a client's IP
  * address is belonging to
  *
+ * see http://mirrorbrain.org/mod_asn/
+ *
  */
 
 #include "ap_config.h"
