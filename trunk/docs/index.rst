@@ -20,6 +20,7 @@ Contents:
    intro
    license
    installation
+   upgrading
    glossary
    changes
 
