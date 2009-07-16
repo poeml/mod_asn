@@ -1,8 +1,8 @@
 Upgrading
 =========
 
-Upgrading PostgreSQL (and the ip4r data type)
----------------------------------------------
+Upgrading PostgreSQL (including ip4r data)
+------------------------------------------
 
 When upgrading PostgreSQL, it is important to look at the version number difference. 
 If the third digit changes, no special procedure is needed (except when the
@@ -17,6 +17,8 @@ upgrading from 8.3.7 to 8.4, you need to dump and reload.
 You might want to follow the instructions that your vendor provides. If your
 vendor doesn't provide an upgrade procedure, be warned that the database needs
 to be dumped before upgrading PostgreSQL.
+
+See ``pg_dumpall(1)`` for how to dump and reload the complete database.
 
 .. warning:: 
    If your vendor's upgrade procedure automatically saves the previous
