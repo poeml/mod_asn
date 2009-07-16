@@ -95,45 +95,67 @@ info, named :file:`/etc/asn_import.conf`, looking like this::
 Load the database with routing data
 ------------------------------------
 
-The data is downloaded and import into the database with the following
+The data is downloaded and imported into the database with the following
 command::
 
     asn_get_routeviews.py | asn_import.py
 
 It is recommendable to run the command as unprivileged user, for safety
-reasons.
+reasons (as any network client).
 
 It will take at least a few minutes to download and process the data - about
 30MB are downloaded, and the data is about 1GB uncompressed (beginning of
-2009). (In the postgresql database it will need only about 40MB, including the
-index.)
+2009). (In the postgresql database it will again be small.)
 
-The data changes almost constantly, but most of the changes won't be directly
-relevant to you. However, you should regularly update from time to time. A
-weekly or monthly schedule could be entirely sufficient, depending on what you
-use the data for.
+The command shown above can be used to update the database with fresh
+routeviews data, by just running it again. This is explained in the next
+section.
+
+
+Keep the data up to date
+------------------------
+
+The data changes almost constantly, but most of the changes will be microscopic
+and won't directly matter to you. However, you should regularly update from
+time to time. A weekly (or even monthly) schedule could be entirely sufficient,
+depending on what you use the data for.
+
 
 .. warning::
    You should be aware of the fact that routeview.org kindly provides this data
-   to the public. You should use their bandwidth with consideration.
+   to the public, and you should use their bandwidth with consideration. 
+   
+Therefore, the MirrorBrain project provides a daily mirror at
+http://mirrorbrain.org/routeviews/ containing the latest snapshot. This
+location is used by the provided scripts.
 
-The command shown above can be used to update the database with fresh
-routeviews data, by just running it again. This works in production while the
-database is in active use; it is done in a way that doesn't block any ongoing
-connections.
+The same command as you ran initially can be used to update the database with
+fresh routeviews data, by just running it again. This works in production while
+the database is in active use; it is done in a way that doesn't block any
+ongoing connections.
 
 .. note::
    The tarball with the data snapshot will be downloaded only if it doesn't
    exist already in the current working directory. To redownload it, remove the
    file first.
 
-An example for setting up the script to download and import the data several
-times a week could look like below. In the example, mod_asn runs in conjunction
-with MirrorBrain, and all MirrorBrain instances are updated::
+A cron snippet for running the script daily to download and import the data
+could look as shown below::
 
-    # update ASN data three times a week
-    35 2 * * mon,wed,fri   mirrorbrain  for i in $(mb instances); do \
-                                asn_get_routeviews | asn_import -b $i; done
+    35 2 * * *   mirrorbrain  sleep $(($RANDOM/16)); asn_get_routeviews | asn_import
+
+If you have a MirrorBrain setup, and possibly several MirrorBrain instances,
+you could update each database like this::
+
+    # update ASN data in all MB instances
+    35 2 * * *   mirrorbrain  sleep $(($RANDOM/16)); \
+                                for i in $(mb instances); do \
+                                  asn_get_routeviews | asn_import -b $i; done
+
+
+The ``sleep`` command serves to randomize the job time a bit, and allows the
+example to be used verbatim. Also note that in the example the scripts are
+called without the ``.py`` extension.
 
 The data is downloaded to the user's home directory in this case. Make sure the
 script runs in a directory where other users don't have write permissions.
