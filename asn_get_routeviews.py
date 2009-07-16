@@ -9,8 +9,11 @@ import urllib
 # example url: 'http://archive.routeviews.org/oix-route-views/2008.11/oix-full-snapshot-latest.dat.bz2'
 
 filename = 'oix-full-snapshot-latest.dat.bz2'
-url = 'http://archive.routeviews.org/oix-route-views/%s/%s' \
-        % (time.strftime("%Y.%m", time.gmtime()), filename)
+#url = 'http://archive.routeviews.org/oix-route-views/%s/%s' \
+#        % (time.strftime("%Y.%m", time.gmtime()), filename)
+
+# mirrored daily from archive.routeviews.org, to save routeviews.org the traffic
+url = 'http://mirrorbrain.org/routeviews/%s' % filename
 
 if not os.path.exists(filename):
     print >>sys.stderr, 'downloading', url
