@@ -18,8 +18,8 @@ Release 1.2 (Jul 27, 2009)
 
 * documentation updates
 
-  - section "Keep the data up to date" added
-  - add upgrade notes about PostgreSQL (8.4)
+  - section :ref:`keep_the_data_up_to_date` added
+  - add :ref:`upgrading` notes about PostgreSQL (8.4)
   - install the new documentaion when building Debian or RPM packages
 
 * "debian" subdirectory added, for Debian package builds

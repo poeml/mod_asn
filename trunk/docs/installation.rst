@@ -112,6 +112,8 @@ routeviews data, by just running it again. This is explained in the next
 section.
 
 
+.. _keep_the_data_up_to_date:
+
 Keep the data up to date
 ------------------------
 
