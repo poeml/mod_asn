@@ -2,8 +2,8 @@
 Release Notes/Change History
 ============================
 
-1.2
------------------
+Release 1.2 (Jul 27, 2009)
+--------------------------
 
 * :program:`asn_get_routeviews` script:
 
@@ -24,14 +24,13 @@ __ http://mirrorbrain.org/routeviews/
   - add upgrade notes about PostgreSQL (8.4)
   - install the new documentaion when building Debian or RPM packages
 
-
 * "debian" subdirectory added, for Debian package builds
 
-* the Subversion repository was moved to http://svn.mirrorbrain.org/svn/mod_asn/trunk
+* the Subversion repository was moved to http://svn.mirrorbrain.org/svn/mod_asn/trunk/
 
 
-1.1
------------------
+Release 1.1 (Jul 4, 2009)
+-------------------------
 
 * mod_asn.c: 
 
@@ -65,8 +64,8 @@ __ http://mirrorbrain.org/routeviews/
 * add debian subdirectory for building Debian packages
 
 
-1.0
------------------
+Release 1.0 (Mar 31, 2009)
+--------------------------
 
 * mod_asn.c:
 
