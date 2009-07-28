@@ -2,6 +2,34 @@
 Release Notes/Change History
 ============================
 
+1.2
+-----------------
+
+* :program:`asn_get_routeviews` script:
+
+  - download data from the `mirror`__ provided by the MirrorBrain project, so
+    routeviews.org doesn't get additional traffic by additional users
+    downloading from them
+
+__ http://mirrorbrain.org/routeviews/
+
+* the documentation has been moved into a docs subdirectory, and rewritten in
+  reStructured Text format, from which HTML is be generated via Sphinx
+  (http://sphinx.pocoo.org/). When the documentation is changed in subversion,
+  the changes automatically get online on http://mirrorbrain.org/mod_asn/docs/
+
+* documentation updates
+
+  - section "Keep the data up to date" added
+  - add upgrade notes about PostgreSQL (8.4)
+  - install the new documentaion when building Debian or RPM packages
+
+
+* "debian" subdirectory added, for Debian package builds
+
+* the Subversion repository was moved to http://svn.mirrorbrain.org/svn/mod_asn/trunk
+
+
 1.1
 -----------------
 
