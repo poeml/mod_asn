@@ -2,7 +2,7 @@
 Release Notes/Change History
 ============================
 
-Release 1.2 (Jul 27, 2009)
+Release 1.2 (Jul 28, 2009)
 --------------------------
 
 * :program:`asn_get_routeviews` script:
