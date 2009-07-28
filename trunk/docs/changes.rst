@@ -7,11 +7,9 @@ Release 1.2 (Jul 27, 2009)
 
 * :program:`asn_get_routeviews` script:
 
-  - download data from the `mirror`__ provided by the MirrorBrain project, so
-    routeviews.org doesn't get additional traffic by additional users
-    downloading from them
-
-__ http://mirrorbrain.org/routeviews/
+  - download data from the `mirror <http://mirrorbrain.org/routeviews/>`_
+    provided by the MirrorBrain project, so routeviews.org doesn't get
+    additional traffic by additional users downloading from them
 
 * the documentation has been moved into a docs subdirectory, and rewritten in
   reStructured Text format, from which HTML is be generated via Sphinx
