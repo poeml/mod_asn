@@ -58,10 +58,12 @@ def import_raw():
     cursor.execute("begin")
     cursor.execute("delete from %s" % tablename)
 
+    inserted = 0
     for line in fileinput.input():
         pfx, asnb, asn = line.split()
         try:
             cursor.execute("INSERT INTO %s VALUES ( %%s, %%s )" % tablename, [pfx, asn])
+            inserted += 1
         except psycopg2.IntegrityError, e:
             print e
             if hasattr(psycopg2, 'errorcodes'):
@@ -75,8 +77,11 @@ def import_raw():
             raise
             sys.exit('insert failed for %s, %s' % (pfx, asn))
 
-    cursor.execute("commit")
-    cursor.execute("vacuum analyze %s" % tablename)
+    if inserted > 0:
+        cursor.execute("commit")
+        cursor.execute("vacuum analyze %s" % tablename)
+    else:
+        sys.exit('nothing imported, no change comitted to the database')
 
 import_raw()
 
