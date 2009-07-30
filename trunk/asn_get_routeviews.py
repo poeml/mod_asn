@@ -15,12 +15,14 @@ filename = 'oix-full-snapshot-latest.dat.bz2'
 # mirrored daily from archive.routeviews.org, to save routeviews.org the traffic
 url = 'http://mirrorbrain.org/routeviews/%s' % filename
 
-if not os.path.exists(filename):
-    print >>sys.stderr, 'downloading', url
+if os.path.exists(filename) \
+   and (time.time() - os.path.getmtime(filename)) < (60 * 60 * 8):
+    print >>sys.stderr, 'Using existing file, because it is less than 8h old.'
+    print >>sys.stderr, 'Remove it to have it downloaded again.'
+else:
+    print >>sys.stderr, 'Downloading', url
     urllib.urlretrieve(url, filename=filename)
 
-if time.time() - os.path.getmtime(filename) > 60 * 60 * 24 * 7:
-    sys.exit('File older than 1 week - remove it to have it downloaded again')
 
 
 def gen_open(filenames): 
