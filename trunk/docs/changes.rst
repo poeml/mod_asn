@@ -8,9 +8,9 @@ Release 1.3 (Jul 30, 2009)
 * Bugs in the :program:`asn_get_routeviews` and :program:`asn_import` scripts were fixed:
 
   - The logic which decided whether to download the routing data snapshot file
-    was fixed.  If the script is called and it finds a file which was
-    downloaded less then 8 hours ago, the file is reused. If no file exists or
-    the file is older than 8 hours, it is downloaded again.
+    was fixed.  If :program:`asn_get_routeviews` is called and it finds a file
+    which was downloaded less then 8 hours ago, the file is reused. If no file
+    exists or the file is older than 8 hours, it is downloaded again.
 
   - Deletion of existing entries in the database is now prevented, if not at
     least one entry has been imported. This fixes a bug where the routing data
