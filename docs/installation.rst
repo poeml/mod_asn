@@ -98,7 +98,7 @@ Load the database with routing data
 The data is downloaded and imported into the database with the following
 command::
 
-    asn_get_routeviews.py | asn_import.py
+    asn_get_routeviews | asn_import
 
 It is recommendable to run the command as unprivileged user, for safety
 reasons (as any network client).
