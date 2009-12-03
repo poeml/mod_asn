@@ -35,6 +35,7 @@
 #include "http_main.h"
 #include "http_protocol.h"
 
+#include "apr_version.h"
 #include "apr_strings.h"
 #include "apr_lib.h"
 #include "apr_dbd.h"
@@ -45,7 +46,7 @@
 #define UNSET (-1)
 #endif
 
-#define MOD_ASN_VER "1.3"
+#define MOD_ASN_VER "1.4"
 #define VERSION_COMPONENT "mod_asn/"MOD_ASN_VER
 
 /* from ssl/ssl_engine_config.c */
@@ -306,9 +307,14 @@ static int asn_header_parser(request_rec *r)
         return DECLINED;
     }
 
+#if (APR_MAJOR_VERSION == 1 && APR_MINOR_VERSION == 2)
+#define DBD_FIRST_ROW 0
+#else
+#define DBD_FIRST_ROW 1
+#endif
 
     /* we care only about the 1st row, because our query uses 'limit 1' */
-    rv = apr_dbd_get_row(dbd->driver, r->pool, res, &row, 1);
+    rv = apr_dbd_get_row(dbd->driver, r->pool, res, &row, DBD_FIRST_ROW);
     if (rv != 0) {
         ap_log_rerror(APLOG_MARK, APLOG_ERR, rv, r,
                       "[mod_asn] Error retrieving row from database for %s", 
@@ -326,7 +332,7 @@ static int asn_header_parser(request_rec *r)
     }
 
     /* clear the cursor by accessing invalid row */
-    rv = apr_dbd_get_row(dbd->driver, r->pool, res, &row, 2);
+    rv = apr_dbd_get_row(dbd->driver, r->pool, res, &row, DBD_FIRST_ROW + 1);
     if (rv != -1) {
         ap_log_rerror(APLOG_MARK, APLOG_ERR, rv, r,
                       "[mod_asn] found one row too much looking up %s", 
