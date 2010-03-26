@@ -46,7 +46,7 @@
 #define UNSET (-1)
 #endif
 
-#define MOD_ASN_VER "1.4"
+#define MOD_ASN_VER "1.5"
 #define VERSION_COMPONENT "mod_asn/"MOD_ASN_VER
 
 /* from ssl/ssl_engine_config.c */
@@ -80,8 +80,9 @@ typedef struct
 
 
 
-/* optional function - look it up once in post_config */
-static ap_dbd_t *(*asn_dbd_acquire_fn)(request_rec*) = NULL;
+/* optional functions - look them up once in post_config */
+static ap_dbd_t *(*asn_dbd_open_fn)(apr_pool_t*, server_rec*) = NULL;
+static void (*asn_dbd_close_fn)(server_rec*, ap_dbd_t*) = NULL;
 static void (*asn_dbd_prepare_fn)(server_rec*, const char*, const char*) = NULL;
 
 
@@ -114,10 +115,11 @@ static int asn_post_config(apr_pool_t *pconf, apr_pool_t *plog,
         asn_dbd_prepare_fn = APR_RETRIEVE_OPTIONAL_FN(ap_dbd_prepare);
         if (asn_dbd_prepare_fn == NULL) {
             ap_log_error(APLOG_MARK, APLOG_ERR, 0, s,
-                         "[mod_asn] You must load mod_dbd to enable mod_asn functions");
+                         "[mod_asn] You must load mod_dbd to enable mod_asn to work");
         return HTTP_INTERNAL_SERVER_ERROR;
         }
-        asn_dbd_acquire_fn = APR_RETRIEVE_OPTIONAL_FN(ap_dbd_acquire);
+        asn_dbd_open_fn = APR_RETRIEVE_OPTIONAL_FN(ap_dbd_open);
+        asn_dbd_close_fn = APR_RETRIEVE_OPTIONAL_FN(ap_dbd_close);
     }
 
     /* prepare DBD SQL statements */
@@ -268,7 +270,7 @@ static int asn_header_parser(request_rec *r)
         ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, "[mod_asn] No database query prepared!");
         return DECLINED;
     }
-    ap_dbd_t *dbd = asn_dbd_acquire_fn(r);
+    ap_dbd_t *dbd = asn_dbd_open_fn(r->pool, r->server);
     if (dbd == NULL) {
         ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, 
                 "[mod_asn] Error acquiring database connection");
@@ -279,6 +281,7 @@ static int asn_header_parser(request_rec *r)
     statement = apr_hash_get(dbd->prepared, scfg->query_prep, APR_HASH_KEY_STRING);
     if (statement == NULL) {
         ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, "[mod_asn] Could not get prepared statement!");
+        asn_dbd_close_fn(r->server, dbd);
         return DECLINED;
     }
 
@@ -294,6 +297,7 @@ static int asn_header_parser(request_rec *r)
 
     if (!clientip) {
         debugLog(r, cfg, "empty client ip... not doing a lookup");
+        asn_dbd_close_fn(r->server, dbd);
         return DECLINED;
     }
 
@@ -304,6 +308,7 @@ static int asn_header_parser(request_rec *r)
                          clientip, NULL) != 0) {
         ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, 
                 "[mod_asn] Error looking up %s in database", clientip);
+        asn_dbd_close_fn(r->server, dbd);
         return DECLINED;
     }
 
@@ -326,6 +331,7 @@ static int asn_header_parser(request_rec *r)
                           "[mod_asn] Error retrieving row from database for %s: %s", 
                           clientip, (errmsg ? errmsg : "[???]"));
         }
+        asn_dbd_close_fn(r->server, dbd);
         return DECLINED;
     }
 
@@ -344,6 +350,7 @@ static int asn_header_parser(request_rec *r)
         ap_log_rerror(APLOG_MARK, APLOG_ERR, rv, r,
                       "[mod_asn] found one row too much looking up %s", 
                       clientip);
+        asn_dbd_close_fn(r->server, dbd);
         return DECLINED;
     }
 
@@ -357,6 +364,7 @@ static int asn_header_parser(request_rec *r)
         apr_table_setn(r->err_headers_out, "X-AS", apr_pstrdup(r->pool, as));
     }
 
+    asn_dbd_close_fn(r->server, dbd);
     return OK;
 }
 
