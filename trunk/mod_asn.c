@@ -315,10 +315,17 @@ static int asn_header_parser(request_rec *r)
 
     /* we care only about the 1st row, because our query uses 'limit 1' */
     rv = apr_dbd_get_row(dbd->driver, r->pool, res, &row, DBD_FIRST_ROW);
-    if (rv != 0) {
-        ap_log_rerror(APLOG_MARK, APLOG_ERR, rv, r,
-                      "[mod_asn] Error retrieving row from database for %s", 
-                      clientip);
+    if (rv != APR_SUCCESS) {
+        if (rv == -1) {
+            /* not an error - might be a private IP, for instance */
+            ap_log_rerror(APLOG_MARK, APLOG_NOTICE, 0, r,
+                          "[mod_asn] IP %s not found", clientip);
+        } else {
+            const char *errmsg = apr_dbd_error(dbd->driver, dbd->handle, rv);
+            ap_log_rerror(APLOG_MARK, APLOG_ERR, rv, r,
+                          "[mod_asn] Error retrieving row from database for %s: %s", 
+                          clientip, (errmsg ? errmsg : "[???]"));
+        }
         return DECLINED;
     }
 
