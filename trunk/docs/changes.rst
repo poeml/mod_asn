@@ -2,6 +2,42 @@
 Release Notes/Change History
 ============================
 
+Release 1.4 (Mar 27, 2010)
+--------------------------
+
+This release does not bring about significant user-visible changes, but under
+the hood, some optimizations were done.
+
+* For more efficient database connection usage, mod_asn now closes the used
+  connection when its handler quits. Before, a connection with lifetime of the
+  request was acquired; if a long-running handler runs after mod_asn, this
+  could mean that the connection is blocked for other threads until the end of
+  the request. This could occur, for instance, when mod_mirrorbrain ran later,
+  but exited early because a file was supposed to be delivered directly.
+  This was tracked in `issue 44`_.
+
+* Database errors from the lower DBD layer are now resolved to strings, where
+  available. In relation to this: if an IP address is not found it isn't
+  necessarily an error, because it could be a private IP, for instance, which
+  is never present in global routing tables. That case is now logged with
+  NOTICE log level.
+
+* When compiling mod_asn with the Apache Portable Runtime 1.2, different
+  semantics are used to access database rows, couting from 0 instead of from 1. It
+  seemed to work either way (maybe because only a single row is accessed), but
+  hopefully now it is done more correctly and therefore safer in the future.
+  See `issue 29`_ and `issue 7`_ for the context.
+
+
+* In the documentation, the support scripts are now mentioned without their
+  :file:`.py` suffix in the example for data import, which might be less
+  confusing.
+
+.. _`issue 44`: http://mirrorbrain.org/issues/issue44
+.. _`issue 29`: http://mirrorbrain.org/issues/issue29
+.. _`issue 7`: http://mirrorbrain.org/issues/issue7
+
+
 Release 1.3 (Jul 30, 2009)
 --------------------------
 
