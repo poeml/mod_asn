@@ -2,8 +2,8 @@
 Release Notes/Change History
 ============================
 
-Release 1.4 (Mar 27, 2010)
---------------------------
+Release 1.4 (r79, Mar 27, 2010) 
+-------------------------------
 
 This release does not bring about significant user-visible changes, but under
 the hood, some optimizations were done.
@@ -38,8 +38,8 @@ the hood, some optimizations were done.
 .. _`issue 7`: http://mirrorbrain.org/issues/issue7
 
 
-Release 1.3 (Jul 30, 2009)
---------------------------
+Release 1.3 (r70, Jul 30, 2009)
+-------------------------------
 
 * Bugs in the :program:`asn_get_routeviews` and :program:`asn_import` scripts were fixed:
 
