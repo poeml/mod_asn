@@ -1,2 +1,0 @@
-# Depends: dbd
-LoadModule asn_module /usr/lib/apache2/modules/mod_asn.so
