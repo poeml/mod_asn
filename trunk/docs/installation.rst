@@ -28,10 +28,14 @@ system:
 openSUSE/SLE rpm package: 
     http://download.opensuse.org/repositories/server:/database:/postgresql/
 
-The Debian package is called postgresql-8.3-ip4r.
+The Debian package is called postgresql-8.4-ip4r or postgresql-8.3-ip4r. The
+install command would look like this::
+
+    apt-get install postgresql-8.4-ip4r libapache2-mod-asn
 
 Gentoo portage overlay:
     http://github.com/ramereth/ramereth-overlay/tree
+
 
 If a manual install is required, you need the PostgresSQL devel package of your
 operating system and compile a shared library, following the procedure
@@ -43,9 +47,15 @@ to run the SQL script provided with the ip4r sources::
     su - postgres
     psql -f /usr/share/postgresql-ip4r/ip4r.sql template1
 
-"template1" means that all databases that are created later will have the
+``template1`` means that all databases that are created later will have the
 datatype available. To install it onto an existing database, use your database
 name instead of "template1".
+
+For instance, if you are on Debian, and you have an existing ``mirrorbrain``
+database, you would install the data type on it like this::
+
+    su - postgres
+    psql -f /usr/share/postgresql/8.4/contrib/ip4r.sql mirrorbrain
 
 It is normal to see a a good screenful of output printed out by the above
 :command:`psql` command.
@@ -61,12 +71,19 @@ mod_asn::
 
     psql -U <dbuser> -f asn.sql <dbname>
 
-If you see some "NOTICE" printed out by the command, that's normal; it's due to
-the default logging setup of PostgreSQL which is verbose.
-
 .. note::
-   The command creates a table named `pfx2asn` in the <dbname> database. Since
-   the table name is used in some other places, so you should not change it.
+   The command creates a table named `pfx2asn` in the database named <dbname>.
+   Since the table name is used in some other places, so you should not change
+   its name.
+
+Example: assuming the database already exists (when installing MirrorBrain) and
+you are on Debian::
+
+   su - mirrorbrain
+   psql -f /usr/share/doc/libapache2-mod-asn/asn.sql
+
+If you see some ``NOTICE`` printed out by the command, that's normal; it's due to
+the default logging setup of PostgreSQL which is verbose.
 
 
 
@@ -124,7 +141,7 @@ depending on what you use the data for.
 
 
 .. warning::
-   You should be aware of the fact that routeview.org kindly provides this data
+   You should be aware of the fact that routeviews.org kindly provides this data
    to the public, and you should use their bandwidth with consideration. 
    
 Therefore, the MirrorBrain project provides a daily mirror at
@@ -251,6 +268,9 @@ the directives belong.
 
 Configure mod_asn
 ------------------------------------
+
+.. FIXME: a complete, working config example should be shown at the beginning or the end of this section
+
 
 .. describe:: ASLookup
 
