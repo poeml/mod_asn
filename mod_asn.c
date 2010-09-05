@@ -301,6 +301,12 @@ static int asn_header_parser(request_rec *r)
         return DECLINED;
     }
 
+    if (ap_strchr_c(clientip, ':')) {
+        debugLog(r, cfg, "IPv6 address lookup is not supported (%s)", clientip);
+        asn_dbd_close_fn(r->server, dbd);
+        return DECLINED;
+    }
+
     
     /* 0: sequential. must loop over all rows.
      * 1: random. accessing invalid row (-1) will clear the cursor. */
