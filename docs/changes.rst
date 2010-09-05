@@ -2,6 +2,35 @@
 Release Notes/Change History
 ============================
 
+Release 1.5 (r88, Sep 5, 2010)
+------------------------------
+
+This release fixes one important bug, and improves documentation.
+
+* mod_asn now avoids lookups of IPv6 addresses. The database of AS (autonomous
+  system) numbers is IPv4-only, and in addition, attempted lookups seem to
+  cause problems within the PostgreSQL ``ip4r`` contrib data type. The symptom
+  was a failure of the database after a while of running, and subsequent error
+  messages from Apache. See `issue 58`_.
+
+* The used version of the APR/APR-Util library is now checked when Apache
+  starts, and not when the module is compiled. This is useful to choose the
+  correct way to access the database, which unfortunately changed between the
+  1.2 and 1.3 (APR-Util) release. This change makes the deployment more robust,
+  because even if a user mixes packages from different distro versions on a
+  system, mod_asn will still work correctly. This improves the existing fix for
+  `issue 7`_.
+  
+* The documentation has been updated with
+
+  - updated examples of Debian package names and filenames
+  - an improved example about installing onto an existing database
+
+
+.. _`issue 7`: http://mirrorbrain.org/issues/issue7
+.. _`issue 58`: http://mirrorbrain.org/issues/issue58
+
+
 Release 1.4 (r79, Mar 27, 2010) 
 -------------------------------
 
