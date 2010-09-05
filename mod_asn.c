@@ -36,6 +36,7 @@
 #include "http_protocol.h"
 
 #include "apr_version.h"
+#include "apu_version.h"
 #include "apr_strings.h"
 #include "apr_lib.h"
 #include "apr_dbd.h"
@@ -85,6 +86,9 @@ static ap_dbd_t *(*asn_dbd_open_fn)(apr_pool_t*, server_rec*) = NULL;
 static void (*asn_dbd_close_fn)(server_rec*, ap_dbd_t*) = NULL;
 static void (*asn_dbd_prepare_fn)(server_rec*, const char*, const char*) = NULL;
 
+static apr_version_t vsn;
+static int dbd_first_row;
+
 
 static void debugLog(const request_rec *r, const asn_dir_conf *cfg,
                      const char *fmt, ...)
@@ -108,6 +112,17 @@ static void debugLog(const request_rec *r, const asn_dir_conf *cfg,
 static int asn_post_config(apr_pool_t *pconf, apr_pool_t *plog, 
                                apr_pool_t *ptemp, server_rec *s)
 {
+    apr_version(&vsn);
+    ap_log_error(APLOG_MARK, APLOG_NOTICE, 0, s,
+                 "[mod_asn] compiled with APR/APR-Util %s/%s",
+                 APR_VERSION_STRING, APU_VERSION_STRING);
+
+    if ((vsn.major == 1) && (vsn.minor == 2)) {
+        dbd_first_row = 0;
+    } else {
+        dbd_first_row = 1;
+    }
+
     ap_add_version_component(pconf, VERSION_COMPONENT);
 
     /* make sure that mod_dbd is loaded */
@@ -318,14 +333,8 @@ static int asn_header_parser(request_rec *r)
         return DECLINED;
     }
 
-#if (APR_MAJOR_VERSION == 1 && APR_MINOR_VERSION == 2)
-#define DBD_FIRST_ROW 0
-#else
-#define DBD_FIRST_ROW 1
-#endif
-
     /* we care only about the 1st row, because our query uses 'limit 1' */
-    rv = apr_dbd_get_row(dbd->driver, r->pool, res, &row, DBD_FIRST_ROW);
+    rv = apr_dbd_get_row(dbd->driver, r->pool, res, &row, dbd_first_row);
     if (rv != APR_SUCCESS) {
         if (rv == -1) {
             /* not an error - might be a private IP, for instance */
@@ -351,7 +360,7 @@ static int asn_header_parser(request_rec *r)
     }
 
     /* clear the cursor by accessing invalid row */
-    rv = apr_dbd_get_row(dbd->driver, r->pool, res, &row, DBD_FIRST_ROW + 1);
+    rv = apr_dbd_get_row(dbd->driver, r->pool, res, &row, dbd_first_row + 1);
     if (rv != -1) {
         ap_log_rerror(APLOG_MARK, APLOG_ERR, rv, r,
                       "[mod_asn] found one row too much looking up %s", 
