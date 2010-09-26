@@ -45,7 +45,8 @@ After installing the shared object by package or manual install, you will need
 to run the SQL script provided with the ip4r sources::
 
     su - postgres
-    psql -f /usr/share/postgresql-ip4r/ip4r.sql template1
+    psql -f /usr/share/postgresql/8.4/contrib/ip4r.sql template1  # on Ubuntu
+    psql -f /usr/share/postgresql-ip4r/ip4r.sql template1         # on openSUSE
 
 ``template1`` means that all databases that are created later will have the
 datatype available. To install it onto an existing database, use your database
@@ -55,7 +56,8 @@ For instance, if you are on Debian, and you have an existing ``mirrorbrain``
 database, you would install the data type on it like this::
 
     su - postgres
-    psql -f /usr/share/postgresql/8.4/contrib/ip4r.sql mirrorbrain
+    psql -f /usr/share/postgresql/8.4/contrib/ip4r.sql mirrorbrain  # on Ubuntu
+    psql -f /usr/share/postgresql-ip4r/ip4r.sql mirrorbrain         # on openSUSE
 
 It is normal to see a a good screenful of output printed out by the above
 :command:`psql` command.
@@ -121,7 +123,7 @@ It is recommendable to run the command as unprivileged user, for safety
 reasons (as any network client).
 
 It will take at least a few minutes to download and process the data - about
-30MB are downloaded, and the data is about 1GB uncompressed (beginning of
+30MB are downloaded, and the data is about 1GB uncompressed (as of
 2009). (In the postgresql database it will again be small.)
 
 The command shown above can be used to update the database with fresh
