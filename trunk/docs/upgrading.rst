@@ -34,5 +34,5 @@ upgrading, and load that after upgrading.
 
 
 .. note:: 
-   When upgrading to 8.4, ``ident sameuser`` is no longer a valid value in
-   :file:`pg_hba.conf`. Replace it with ``ident``.
+   When upgrading to 8.4, ``ident sameuser`` is no longer a valid value 
+   in :file:`pg_hba.conf`. Replace it with ``ident``.
