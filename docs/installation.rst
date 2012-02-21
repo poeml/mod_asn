@@ -122,9 +122,12 @@ command::
 It is recommendable to run the command as unprivileged user, for safety
 reasons (as any network client).
 
-It will take at least a few minutes to download and process the data - about
+It might take a few minutes to download and process the data - about
 30MB are downloaded, and the data is about 1GB uncompressed (as of
-2009). (In the postgresql database it will again be small.)
+2009) (2010: 13MB compressed, 0.5G uncompressed). The script has to process
+over 5 million entries, and it is optimized for that job. 
+
+In the postgresql database, the data set will be small again.
 
 The command shown above can be used to update the database with fresh
 routeviews data, by just running it again. This is explained in the next
