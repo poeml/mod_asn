@@ -2,6 +2,18 @@
 Release Notes/Change History
 ============================
 
+Release 1.6 (r93, XXX X, 2012)
+------------------------------
+
+This release fixes a bug in the :program:`asn_get_routeviews` script: It could
+fail when the BGP routing data snapshot contains bogus AS numbers. (issue #93)
+Patch courtesy of *agy*.
+
+This release also adds documentation.
+
+.. _`issue 93`: http://mirrorbrain.org/issues/issue93
+
+
 Release 1.5 (r88, Sep 5, 2010)
 ------------------------------
 
