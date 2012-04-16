@@ -11,6 +11,8 @@ tablename = 'pfx2asn'
 # not needed when a MirrorBrain setup exists
 conffile = '/etc/asn_import.conf'
 
+MAX_ASN_INT = 65535
+
 # is there a MirrorBrain config file? If yes, use that.
 try:
     import mb.conf
@@ -61,6 +63,8 @@ def import_raw():
     inserted = 0
     for line in fileinput.input():
         pfx, asnb, asn = line.split()
+        if int(asn) > MAX_ASN_INT:
+            continue
         try:
             cursor.execute("INSERT INTO %s VALUES ( %%s, %%s )" % tablename, [pfx, asn])
             inserted += 1
