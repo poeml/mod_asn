@@ -15,13 +15,16 @@ filename = 'oix-full-snapshot-latest.dat.bz2'
 # mirrored daily from archive.routeviews.org, to save routeviews.org the traffic
 url = 'http://mirrorbrain.org/routeviews/%s' % filename
 
-if os.path.exists(filename) \
-   and (time.time() - os.path.getmtime(filename)) < (60 * 60 * 8):
-    print >>sys.stderr, 'Using existing file, because it is less than 8h old.'
-    print >>sys.stderr, 'Remove it to have it downloaded again.'
+if len(sys.argv) > 1 and sys.argv[1] == '--no-download':
+    sys.argv.pop(1)
 else:
-    print >>sys.stderr, 'Downloading', url
-    urllib.urlretrieve(url, filename=filename)
+    if os.path.exists(filename) \
+       and (time.time() - os.path.getmtime(filename)) < (60 * 60 * 8):
+        print >>sys.stderr, 'Using existing file, because it is less than 8h old.'
+        print >>sys.stderr, 'Remove it to have it downloaded again.'
+    else:
+        print >>sys.stderr, 'Downloading', url
+        urllib.urlretrieve(url, filename=filename)
 
 if len(sys.argv) > 1 and sys.argv[1] == '--download-only':
     sys.exit(0)
