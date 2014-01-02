@@ -23,6 +23,8 @@ else:
     print >>sys.stderr, 'Downloading', url
     urllib.urlretrieve(url, filename=filename)
 
+if len(sys.argv) > 1 and sys.argv[1] == '--download-only':
+    sys.exit(0)
 
 
 def gen_open(filenames): 
