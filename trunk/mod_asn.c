@@ -307,7 +307,11 @@ static int asn_header_parser(request_rec *r)
         clientip = apr_table_get(r->subprocess_env, scfg->ip_envvar);
         debugLog(r, cfg, "client ip from %s envvar: %s", scfg->ip_envvar, clientip);
     } else {
+#if AP_MODULE_MAGIC_AT_LEAST(20111130, 0)
+        clientip = apr_pstrdup(r->pool, r->useragent_ip);
+#else
         clientip = apr_pstrdup(r->pool, r->connection->remote_ip);
+#endif
     }
 
     if (!clientip) {
