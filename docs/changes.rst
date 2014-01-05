@@ -2,16 +2,28 @@
 Release Notes/Change History
 ============================
 
-Release 1.6 (r93, XXX X, 2012)
+Release 1.6 (rXX, XXX X, 2014)
 ------------------------------
 
-This release fixes a bug in the :program:`asn_get_routeviews` script: It could
-fail when the BGP routing data snapshot contains bogus AS numbers. (issue #93)
+This release adjusts for the API changes in Apache 2.4. Thanks Cristian
+Rodriguez for the help. (`issue 128`_, `issue 129`_)
+
+This release also fixes a bug in the :program:`asn_get_routeviews` script: It
+could fail when the BGP routing data snapshot contains bogus AS numbers. (`issue 93`_) 
 Patch courtesy of *agy*.
+
+:program:`asn_get_routeviews` now allows to only download routing data, but
+don't process it, by using the switch ``--download-only``. In addition,
+``--no-download`` can be used if the data is distributed by other means, e.g.
+with distro updates. Thanks Dagobert Michelsen for the suggestion! (`issue
+127`_)
+
 
 This release also adds documentation.
 
 .. _`issue 93`: http://mirrorbrain.org/issues/issue93
+.. _`issue 128`: http://mirrorbrain.org/issues/issue128
+.. _`issue 129`: http://mirrorbrain.org/issues/issue129
 
 
 Release 1.5 (r88, Sep 5, 2010)
