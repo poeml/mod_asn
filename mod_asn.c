@@ -100,7 +100,10 @@ static void debugLog(const request_rec *r, const asn_dir_conf *cfg,
         apr_vsnprintf(buf, sizeof (buf), fmt, ap);
         va_end(ap);
         /* we use warn loglevel to be able to debug without 
-         * setting the entire server into debug logging mode */
+         * setting the entire server into debug logging mode.
+	 * (Apache 2.4 got per-module loglevel configuration; so, in case that 
+	 * Apache 2.2 should no longer be supported by us in the future, we
+	 * could remove this function */
         ap_log_rerror(APLOG_MARK,
                       APLOG_WARNING, 
                       APR_SUCCESS,
@@ -428,7 +431,12 @@ static void asn_register_hooks(apr_pool_t *p)
 }
 
 
+#ifdef AP_DECLARE_MODULE
+AP_DECLARE_MODULE(asn) =
+#else 
+/* pre-2.4 */
 module AP_MODULE_DECLARE_DATA asn_module =
+#endif
 {
     STANDARD20_MODULE_STUFF,
     create_asn_dir_config,      /* create per-directory config structures */
