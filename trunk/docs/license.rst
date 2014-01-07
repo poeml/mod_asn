@@ -4,6 +4,7 @@ License
 
 
 Copyright (c) 2008-2010 Peter Poeml <poeml@mirrorbrain.org> / Novell Inc.
+Copyright (c) 2008-2014 Peter Poeml <poeml@mirrorbrain.org>
 All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
