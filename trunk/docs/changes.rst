@@ -2,8 +2,8 @@
 Release Notes/Change History
 ============================
 
-Release 1.6 (rXX, XXX X, 2014)
-------------------------------
+Release 1.6 (r100, Jan 7, 2014)
+-------------------------------
 
 This release adjusts for the API changes in Apache 2.4. Thanks Cristian
 Rodriguez for the help. (`issue 128`_, `issue 129`_)
@@ -22,6 +22,7 @@ with distro updates. Thanks Dagobert Michelsen for the suggestion! (`issue
 This release also adds documentation.
 
 .. _`issue 93`: http://mirrorbrain.org/issues/issue93
+.. _`issue 127`: http://mirrorbrain.org/issues/issue127
 .. _`issue 128`: http://mirrorbrain.org/issues/issue128
 .. _`issue 129`: http://mirrorbrain.org/issues/issue129
 
