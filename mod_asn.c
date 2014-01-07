@@ -47,7 +47,7 @@
 #define UNSET (-1)
 #endif
 
-#define MOD_ASN_VER "1.5"
+#define MOD_ASN_VER "1.6"
 #define VERSION_COMPONENT "mod_asn/"MOD_ASN_VER
 
 /* from ssl/ssl_engine_config.c */
