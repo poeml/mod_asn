@@ -2,6 +2,16 @@
 Release Notes/Change History
 ============================
 
+Release TBA (TBA)
+-------------------------------
+
+mod_asn now supports AS lookups of IPv6 addresses. This requires
+a current version of the contrib ip4r PostgreSQL data type (which
+despite its name now supports IPv6), and a slightly changed
+database scheme - it is probably simplest if you drop the ``pfx2asn``
+database table and recreate it.
+
+
 Release 1.6 (r100, Jan 7, 2014)
 -------------------------------
 
