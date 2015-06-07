@@ -22,41 +22,46 @@ a shared library needs to be built to be loaded into PostgreSQL, and an SQL
 script needs to be run to make the data type known to PostgreSQL and install
 functions that use it.
 
-It would preferable to use a binary package if one exists for your operating
+It would be preferable to use a binary package if one exists for your operating
 system:
 
 openSUSE/SLE rpm package: 
     http://download.opensuse.org/repositories/server:/database:/postgresql/
 
-The Debian package is called postgresql-8.4-ip4r or postgresql-8.3-ip4r. The
-install command would look like this::
+The Debian or Ubuntu package is called postgresql-`VERSION`-ip4r. For Ubuntu 14.04
+it's postgresql-9.3-ip4r, for Debian Jessie it's postgresql-9.4-ip4r.
+The install command would look like this::
 
-    apt-get install postgresql-8.4-ip4r libapache2-mod-asn
+    apt-get install postgresql-9.4-ip4r libapache2-mod-asn
 
 Gentoo portage overlay:
     http://github.com/ramereth/ramereth-overlay/tree
 
 
-If a manual install is required, you need the PostgresSQL devel package of your
+If a manual install is required, you need the PostgreSQL devel package of your
 operating system and compile a shared library, following the procedure
 described in the installation instructions provided with the software. 
 
 After installing the shared object by package or manual install, you will need
-to run the SQL script provided with the ip4r sources::
+to register that extension in your database(s). In old PostgreSQL-versions (up to 9.1)
+you run a SQL script provided with the ip4r sources, in later versions you instead
+register an extension::
 
     su - postgres
-    psql -f /usr/share/postgresql/8.4/contrib/ip4r.sql template1  # on Ubuntu
+    psql -c "CREATE EXTENSION ip4r" template1                     # on Debian/Ubuntu >= postgre 9.1
+    psql -f /usr/share/postgresql/8.4/contrib/ip4r.sql template1  # on Debian/Ubuntu < postgre 9.1
     psql -f /usr/share/postgresql-ip4r/ip4r.sql template1         # on openSUSE
 
 ``template1`` means that all databases that are created later will have the
 datatype available. To install it onto an existing database, use your database
 name instead of "template1".
 
-For instance, if you are on Debian, and you have an existing ``mirrorbrain``
+For instance, if you have an existing ``mirrorbrain``
 database, you would install the data type on it like this::
 
     su - postgres
-    psql -f /usr/share/postgresql/8.4/contrib/ip4r.sql mirrorbrain  # on Ubuntu
+    psql -c "CREATE EXTENSION ip4r" mirrorbrain                     # on Debian/Ubuntu >= postgre 9.1
+    psql -f /usr/share/postgresql/8.4/contrib/ip4r.sql mirrorbrain  # on Debian/Ubuntu < postgre 9.1
     psql -f /usr/share/postgresql-ip4r/ip4r.sql mirrorbrain         # on openSUSE
 
 It is normal to see a a good screenful of output printed out by the above
