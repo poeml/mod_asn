@@ -74,7 +74,11 @@ than read an IP address from a request body (or URL) and return the result
 
 One argument for the ip4r data type in PostgreSQL is that it is IPv6-ready.
 Some IPv6 autonomous systems already exist (about 800 as of the beginning of
-2009).
+2009). 
+
+*Update June 2015*: There are ~9747 IPv6 ASs (mapped to ~24000 prefixes). ip4r
+fully supports IPv6 since version 2.x, and is currently rolled out. mod_asn
+uses this capability from version 1.7 on.
 
 
 Usage with :term:`MirrorBrain`
