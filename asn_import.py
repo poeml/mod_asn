@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
 
+mod_asn_version = '1.7'
+major, minor = mod_asn_version.split('.')
+patchlevel = '0'
+
 
 import os, os.path, sys
 import psycopg2
@@ -58,6 +62,21 @@ def import_raw():
         import psycopg2.errorcodes
     except:
         pass
+
+    try:
+        # document in MirrorBrain's version table which version we are
+        # (in two commands, since there's no "upsert" command yet)
+        cursor.execute("UPDATE version SET major=%s, minor=%s, patchlevel=%s WHERE component='mod_asn'" \
+                % (major, minor, patchlevel))
+        cursor.execute("""INSERT INTO version (component, major, minor, patchlevel)
+                          SELECT 'mod_asn', %s, %s, %s
+                          WHERE NOT EXISTS (SELECT 1 FROM version WHERE component='mod_asn')""" \
+                % (major, minor, patchlevel))
+    except psycopg2.ProgrammingError:
+        # in case the version table doesn't exist:
+        pass
+        # so not to pass away...
+
 
     cursor.execute("begin")
     cursor.execute("delete from %s" % tablename)
