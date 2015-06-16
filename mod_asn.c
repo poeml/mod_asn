@@ -58,7 +58,7 @@
 #define cfgMergeBool(el)    cfgMerge(el, UNSET)
 #define cfgMergeInt(el)     cfgMerge(el, UNSET)
 
-#define DEFAULT_QUERY "SELECT pfx, asn FROM pfx2asn WHERE pfx >>= ip4r(%s) ORDER BY ip4r_size(pfx) LIMIT 1"
+#define DEFAULT_QUERY "SELECT pfx, asn FROM pfx2asn WHERE pfx >>= ipaddress(%s) ORDER BY @ pfx LIMIT 1"
 
 module AP_MODULE_DECLARE_DATA asn_module;
 
@@ -323,13 +323,6 @@ static int asn_header_parser(request_rec *r)
         asn_dbd_close_fn(r->server, dbd);
         return DECLINED;
     }
-
-    if (ap_strchr_c(clientip, ':')) {
-        debugLog(r, cfg, "IPv6 address lookup is not supported (%s)", clientip);
-        asn_dbd_close_fn(r->server, dbd);
-        return DECLINED;
-    }
-
     
     /* 0: sequential. must loop over all rows.
      * 1: random. accessing invalid row (-1) will clear the cursor. */
