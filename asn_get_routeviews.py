@@ -8,26 +8,28 @@ import urllib
 # the data snapshot that we need is put into monthly directories, like this:
 # example url: 'http://archive.routeviews.org/oix-route-views/2008.11/oix-full-snapshot-latest.dat.bz2'
 
-filename = 'oix-full-snapshot-latest.dat.bz2'
-#url = 'http://archive.routeviews.org/oix-route-views/%s/%s' \
-#        % (time.strftime("%Y.%m", time.gmtime()), filename)
+filenames = ['oix-full-snapshot-latest.dat.bz2', 'ipv6-rib-snapshot-latest.txt.bz2']
 
-# mirrored daily from archive.routeviews.org, to save routeviews.org the traffic
-url = 'http://mirrorbrain.org/routeviews/%s' % filename
+for filename in filenames:
+    #url = 'http://archive.routeviews.org/oix-route-views/%s/%s' \
+    #        % (time.strftime("%Y.%m", time.gmtime()), filename)
 
-if len(sys.argv) > 1 and sys.argv[1] == '--no-download':
-    sys.argv.pop(1)
-else:
-    if os.path.exists(filename) \
-       and (time.time() - os.path.getmtime(filename)) < (60 * 60 * 8):
-        print >>sys.stderr, 'Using existing file, because it is less than 8h old.'
-        print >>sys.stderr, 'Remove it to have it downloaded again.'
+    # mirrored daily from archive.routeviews.org, to save routeviews.org the traffic
+    url = 'http://mirrorbrain.org/routeviews/%s' % filename
+
+    if len(sys.argv) > 1 and sys.argv[1] == '--no-download':
+        sys.argv.pop(1)
     else:
-        print >>sys.stderr, 'Downloading', url
-        urllib.urlretrieve(url, filename=filename)
+        if os.path.exists(filename) \
+           and (time.time() - os.path.getmtime(filename)) < (60 * 60 * 8):
+            print >>sys.stderr, 'Using existing file "%s", because it is less than 8h old.' % filename
+            print >>sys.stderr, 'Remove it to have it downloaded again.'
+        else:
+            print >>sys.stderr, 'Downloading', url
+            urllib.urlretrieve(url, filename=filename)
 
-if len(sys.argv) > 1 and sys.argv[1] == '--download-only':
-    sys.exit(0)
+    if len(sys.argv) > 1 and sys.argv[1] == '--download-only':
+        sys.exit(0)
 
 
 def gen_open(filenames): 
@@ -49,7 +51,7 @@ def gen_cat(sources):
             yield item.rstrip()
 
 def gen_lines(lines): 
-    """Some lines come broken in two lines, like this:
+    """Some lines in IPv4 data come broken in two lines, like this:
 
     *  63.105.200.0/21  203.181.248.168          0      0      0 7660 2516 703 9848 9957 i
     *  63.105.202.0/27  203.62.252.186           0      0      0 1221 4637 4766 9318 9957 9957 9286 i
@@ -64,23 +66,29 @@ def gen_lines(lines):
     """
     lastline = ''
     for line in lines: 
-        if len(line) > 35: 
-            if lastline:
-                #print 'last:', lastline
-                #print 'line:', line
-                yield lastline + line
-            else:
-                yield line
-            lastline = ''
+        if ':' in line:
+            # IPv6
+            yield line
         else:
-            lastline = line
+            # IPv4
+            if len(line) > 35: 
+                if lastline:
+                    #print 'last:', lastline
+                    #print 'line:', line
+                    yield lastline + line
+                else:
+                    yield line
+                lastline = ''
+            else:
+                lastline = line
 
 
-def gen_grep(patc, lines): 
+def gen_grep(patc, pat6c, lines): 
     """Generate a sequence of lines that contain 
     a given regular expression"""
     for line in lines: 
-        if patc.search(line): yield line
+        if patc.search(line) or pat6c.search(line): 
+            yield line
 
 
 def gen_asn(lines): 
@@ -99,20 +107,42 @@ def gen_asn(lines):
     """
     for line in lines: 
         s = line.split()
-        if s[-1] == '?':
-            continue
-        if s[-1] not in ['i', 'e']:
-            print >>sys.stderr, repr(line)
-            sys.exit('Error: unusal line seen, ending in %r' % s[-1])
-        if s[1].startswith('0.0.0.0/0'):
-            # see comment above
-            yield s[1], '0', '0'
-        # drop the 'i' at the end
-        s.pop()
-        # drop doublettes of the as number at the end
-        while s[-1] == s[-2]:
+
+        # IPv6?
+        if ':' in line:
+
+            # There have been few AS_SETs used, before they were depracated (see rfc6472)
+            # we use the first AS in those cases
+            # 2001:0410::/32 6509 {271,7860,8111,26677}
+            # ->
+            # 2001:0410::/32 6509 26677
+            # there are AS_SETs with a single AS, also:
+            # 2001:0578:0600::/40 3257 3356 22773 {62957}
+            if s[-1].startswith('{'):
+                s[-1] = s[-1].lstrip('{').rstrip('}').split(',')[-1]
+
+            if len(s) > 2:
+                yield s[0], s[-2], s[-1]
+            else:
+                # no AS neighbour - that happens
+                yield s[0], None, s[-1]
+
+        # IPv4
+        else:
+            if s[-1] == '?':
+                continue
+            if s[-1] not in ['i', 'e']:
+                print >>sys.stderr, repr(line)
+                sys.exit('Error: unusal line seen, ending in %r' % s[-1])
+            if s[1].startswith('0.0.0.0/0'):
+                # see comment above
+                yield s[1], '0', '0'
+            # drop the 'i' at the end
             s.pop()
-        yield s[1], s[-2], s[-1]
+            # drop doublettes of the as number at the end
+            while s[-1] == s[-2]:
+                s.pop()
+            yield s[1], s[-2], s[-1]
 
 # not used here, but useful another time maybe...
 def gen_uniq(lines): 
@@ -159,6 +189,7 @@ def main():
     """
     import re 
 
+    # IPv4:
     # ignore lines not matching regular expression for '* 1.2.3.4/11 '
     # this filters seemingly broken lines like these:
     #
@@ -169,19 +200,28 @@ def main():
     # '*  12.12.96.0/20    209.123.12.51            0      0      0 8001 3257 7018 32328 {32786} i'
     #
     pat = r'^\*\s+\d+\.\d+\.\d+\.\d+/\d+\s+.* \d+ [ie]'
-    patc = re.compile(pat) 
 
-    global filename
-    filename = [filename]
+    # IPv6:
+    # f8f0:1100::/24 393406 4258 3356 3561 40443
+    # 2001:067c:15b0:0000:0000:0000:0000:0001/128 22652 5580 60922
+    # 2408::/22 3257 2914 4697 55817
+    # 2001:0428:4c02:01fd::/64 209
+    #                         ^ no neighbour AS in this case
+    pat6 = r'^[0-9a-fA-F]+:.*/'
+
+    patc = re.compile(pat) 
+    pat6c = re.compile(pat6) 
+
+    global filenames
     if len(sys.argv[1:]):
-        filename = [sys.argv[1]]
+        filenames = sys.argv[1:]
 
     try:
 
-        oixfile     = gen_open(filename)
+        oixfile     = gen_open(filenames)
         oixlines    = gen_cat(oixfile)
         fixedlines  = gen_lines(oixlines)
-        patlines    = gen_grep(patc, fixedlines)
+        patlines    = gen_grep(patc, pat6c, fixedlines)
         pfxasn      = gen_asn(patlines)
         pfxasn_uniq = gen_firstuniq(pfxasn)
 
