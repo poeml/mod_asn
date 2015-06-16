@@ -97,8 +97,6 @@ the default logging setup of PostgreSQL which is verbose.
 Config file for the import script
 ------------------------------------
 
-.. versionadded:: 1.1
-
 If you happen to have a `MirrorBrain <http://mirrorbrain.org/>`_ setup, you'll
 have a configuration file named :file:`/etc/mirrorbrain.conf`, which is
 automatically used by the :program:`asn_import` script. No further
