@@ -1,7 +1,7 @@
 
 /*
  * Copyright (c) 2008-2010 Peter Poeml <poeml@mirrorbrain.org> / Novell Inc.
- * Copyright (c) 2008-2014 Peter Poeml <poeml@mirrorbrain.org>
+ * Copyright (c) 2008-2015 Peter Poeml <poeml@mirrorbrain.org>
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -48,7 +48,7 @@
 #define UNSET (-1)
 #endif
 
-#define MOD_ASN_VER "1.6"
+#define MOD_ASN_VER "1.7"
 #define VERSION_COMPONENT "mod_asn/"MOD_ASN_VER
 
 /* from ssl/ssl_engine_config.c */
