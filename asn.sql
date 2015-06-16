@@ -4,7 +4,7 @@
 -- Note: "as" is a reserved word in SQL
 
 CREATE TABLE "pfx2asn" (
-        "pfx" ip4r NOT NULL PRIMARY KEY,
+        "pfx" iprange NOT NULL PRIMARY KEY,
         "asn" integer NOT NULL
 );
 
